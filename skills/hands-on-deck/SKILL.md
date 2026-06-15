@@ -133,6 +133,20 @@ python scripts/deck.py deck.pptx merge --list-layouts              # choose a la
 - `diff other.pptx` — text/geometry/media/notes changelog without rendering.
 - Thumbnail grids for whole-deck review: `python scripts/thumbnail.py deck.pptx --cols 4` (optional second arg = output filename prefix).
 
+### Reviewing more than a slide or two — fan out, don't accumulate
+
+Rendered images and full `inspect` dumps are the heaviest things you put in context, and they never leave it: one agent that builds the deck and then reviews every slide re-reads every image and dump it has ever seen on every later turn, so cost grows with the square of the work. The fix is context discipline, not fewer checks.
+
+**When more than a slide or two needs visual review, AND you have a sub-agent / Task tool available, fan the review out — one sub-agent per slide (or per small batch):**
+
+- Give each sub-agent a **fresh, minimal context**: the deck path + that one slide's render + its `inspect --slide N`. NOT your build history, the other slides, or their renders. This is the whole point — each review context stays small, and they run in parallel.
+- Each sub-agent returns a **verdict only** — `pass`, or the specific defects with shape ids and the `fix`/patch ops to apply. It does not hand the image back to you.
+- You apply the fixes from the verdicts, then (if needed) fan out one more round on only the slides that changed.
+
+**Even during the build, don't hoard renders in your own thread.** Look at a render, act on it, and move on — don't carry a growing pile of slide JPGs forward. If you're visually checking many slides, delegate the looking so the images live in the sub-agents' contexts, not yours.
+
+No sub-agent tool available? Render and review in small batches and drop earlier slides' images from context once you've judged them — same principle, manual.
+
 ## Escape hatch
 
 When no op expresses the change (animations, exotic effects):

@@ -48,7 +48,7 @@ python scripts/deck.py deck.pptx diff out.pptx               # structural change
   {"op":"set-notes",   "slide":3, "notes":"speaker notes"},
   {"op":"move",        "slide":3, "shape":"s12", "to":[1.0,2.5]},
   {"op":"resize",      "slide":3, "shape":"s12", "size":[4.0,1.5]},
-  {"op":"set-style",   "slide":3, "shape":"s12", "font_size":18, "fill":"0B3D3A", "rotation":6},
+  {"op":"set-style",   "slide":3, "shape":"s12", "font_size":18, "fill":"0B3D3A", "rotation":6, "anchor":"MIDDLE"},
   {"op":"delete",      "slide":3, "shape":"s12"},
   {"op":"duplicate",   "slide":3, "shape":"s12", "offset":[0,1.2], "text":["Fourth pillar"]},
   {"op":"copy-shape",  "from_slide":8, "shape":"s12", "slide":3, "at":[1.0,2.0]},
@@ -63,6 +63,7 @@ python scripts/deck.py deck.pptx diff out.pptx               # structural change
 ```
 
 Key semantics (details in `docs`):
+- **Vertical centering is `anchor`, not `alignment`**: `alignment` (set-text) is HORIZONTAL; to center text in a box taller than the text, set `"anchor":"MIDDLE"` (TOP|MIDDLE|BOTTOM) on set-style or set-text. `inspect` reports it when it's not the default top. html2patch sets it automatically from the slide's CSS (flex/grid centering).
 - **set-text inherits formatting**: new paragraph *i* inherits ALL formatting of old paragraph *i* — pass plain strings for routine replacement. Pass objects to override (`{"text":"Big","font_size":28}`), or `"runs"` for mixed in-paragraph formatting. Table cells: add `"cell":[row,col]`.
 - **Prefer duplicate/copy-shape over add-shape** when a styled donor exists — new shapes start from PowerPoint defaults, not the deck's design language.
 - **add-shape `"name"`** lets later ops in the same patch target the shape it creates.

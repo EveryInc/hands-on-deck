@@ -315,3 +315,32 @@ def test_anchor_becomes_hyperlink_run(tmp_path):
     assert linked[0]["text"] == "the docs" and linked[0]["link"] == "https://example.com/docs"
     r = deck(deck_path, "apply", patch_path, "-o", tmp_path / "out.pptx")
     assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_vertical_anchor_measured_from_layout(tmp_path):
+    """A text element whose box is taller than its text gets an explicit
+    vertical anchor matching how the browser laid it out: flex-centered → MIDDLE,
+    bottom-aligned → BOTTOM, top/plain → no anchor (PPTX default is top)."""
+    html = (
+        "<html><head><style>" + BODY % "font: 28px Arial;"
+        + ".mid { position:absolute; left:80px; top:80px; width:400px; height:300px;"
+        "  display:flex; align-items:center; justify-content:center; }"
+        ".bot { position:absolute; left:520px; top:80px; width:400px; height:300px;"
+        "  display:flex; align-items:flex-end; }"
+        ".plain { position:absolute; left:80px; top:450px; width:500px; }"
+        "</style></head><body>"
+        "<div class='mid'>Centered</div>"
+        "<div class='bot'>Bottom</div>"
+        "<p class='plain'>Plain hugs its height</p>"
+        "</body></html>"
+    )
+    patch, _, _ = compile_html(tmp_path, html)
+    by_text = {}
+    for o in patch["ops"]:
+        if o.get("kind") == "textbox":
+            t = o["text"][0]
+            label = t.get("text") or t["runs"][0]["text"]
+            by_text[label] = o.get("anchor")
+    assert by_text["Centered"] == "MIDDLE"
+    assert by_text["Bottom"] == "BOTTOM"
+    assert by_text["Plain hugs its height"] is None  # content-sized box → default top

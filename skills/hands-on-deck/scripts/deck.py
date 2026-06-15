@@ -79,6 +79,7 @@ from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.dml import MSO_LINE_DASH_STYLE
 from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
+from pptx.enum.text import MSO_ANCHOR
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
@@ -458,6 +459,18 @@ def _master_entry(part_obj):
     return out
 
 
+def _vertical_anchor_name(shape):
+    """Return 'MIDDLE'/'BOTTOM' when the text frame's vertical anchor is set
+    away from the default TOP; None otherwise (keeps inspect uncluttered)."""
+    if not getattr(shape, "has_text_frame", False):
+        return None
+    try:
+        va = shape.text_frame.vertical_anchor
+    except Exception:
+        return None
+    return {MSO_ANCHOR.MIDDLE: "MIDDLE", MSO_ANCHOR.BOTTOM: "BOTTOM"}.get(va)
+
+
 def cmd_inspect(args):
     prs = Presentation(args.file)
     only = parse_slide_list(args.slide) if args.slide else None
@@ -487,6 +500,9 @@ def cmd_inspect(args):
                             f.append(pd.font_name)
                         if f:
                             bits.append(" ".join(f))
+                    anchor = _vertical_anchor_name(r.shape)
+                    if anchor:
+                        bits.append("anchor=" + anchor)
                 pv = r.text_preview(44)
                 if pv:
                     bits.append(pv)
@@ -535,6 +551,9 @@ def cmd_inspect(args):
             if r.is_text:
                 if r.sd is not None and r.sd.placeholder_type:
                     entry["placeholder"] = r.sd.placeholder_type
+                anchor = _vertical_anchor_name(r.shape)
+                if anchor:
+                    entry["anchor"] = anchor
                 entry["paragraphs"] = [
                     _para_dict_with_runs(p)
                     for p in r.shape.text_frame.paragraphs
@@ -771,6 +790,8 @@ def op_set_text(ctx, op):
     else:
         tf = rec.shape.text_frame
     write_paragraphs_inherit(tf, items)
+    if "anchor" in op:
+        tf.vertical_anchor = _anchor_enum(op["anchor"])
     ctx.log.append("set-text slide %d %s (%d paragraph(s))" % (op["slide"], rec.sid, len(items)))
 
 
@@ -1251,9 +1272,34 @@ def _iter_text_frames(rec):
         yield rec.shape.text_frame
 
 
+ANCHOR_VALUES = {
+    "TOP": MSO_ANCHOR.TOP,
+    "MIDDLE": MSO_ANCHOR.MIDDLE,
+    "BOTTOM": MSO_ANCHOR.BOTTOM,
+}
+
+
+def _anchor_enum(value):
+    key = str(value).upper()
+    if key not in ANCHOR_VALUES:
+        raise PatchError("anchor '%s' invalid — use TOP, MIDDLE, or BOTTOM" % value)
+    return ANCHOR_VALUES[key]
+
+
+def _set_vertical_anchor(rec, value):
+    """Set vertical text anchor (TOP|MIDDLE|BOTTOM) on every text frame of a
+    shape (all cells, for a table). Used by set-style/add-shape."""
+    enum = _anchor_enum(value)
+    tfs = list(_iter_text_frames(rec))
+    if not tfs:
+        raise PatchError("cannot set anchor on %s (%s): no text frame" % (rec.sid, rec.type))
+    for tf in tfs:
+        tf.vertical_anchor = enum
+
+
 def _apply_style_keys(rec, op):
     """Shared by set-style and add-shape: shape-wide fonts, fill/gradient,
-    line/border, rotation. Returns how many things it changed."""
+    line/border, rotation, vertical anchor. Returns how many things it changed."""
     styled = 0
     for tf in _iter_text_frames(rec):
         for para in tf.paragraphs:
@@ -1332,6 +1378,9 @@ def _apply_style_keys(rec, op):
         tf = rec.shape.text_frame
         tf.margin_left, tf.margin_top = Inches(ins[0]), Inches(ins[1])
         tf.margin_right, tf.margin_bottom = Inches(ins[2]), Inches(ins[3])
+        styled += 1
+    if "anchor" in op:
+        _set_vertical_anchor(rec, op["anchor"])
         styled += 1
     if "adjustments" in op:
         try:
@@ -2031,6 +2080,11 @@ def validate_ops(ctx, ops):
                     norm_paragraph_items(op["text"])
                 except PatchError as e:
                     errors.append("%s: %s" % (tag, e))
+        if kind in ("set-style", "add-shape", "set-text") and "anchor" in op:
+            if str(op["anchor"]).upper() not in ANCHOR_VALUES:
+                errors.append(
+                    "%s: anchor '%s' invalid — use TOP, MIDDLE, or BOTTOM" % (tag, op["anchor"])
+                )
         if kind in ("set-style", "add-shape"):
             if "line_dash" in op and op["line_dash"] not in LINE_DASH_STYLES:
                 errors.append(
@@ -2680,6 +2734,9 @@ set-text       {"op":"set-text","slide":3,"shape":"s12","text":["Line one","Line
                                         // "•" in the text; level needs bullet
        "space_before":10,"space_after":6,"line_spacing":22}
   - To REMOVE a bullet inherited from the old paragraph: {"text":"...","bullet":false}.
+  - VERTICAL centering: "alignment" is horizontal; to center text vertically in
+    its box add "anchor":"MIDDLE" (TOP|MIDDLE|BOTTOM) at the op level (next to
+    "slide"/"shape"), not inside a paragraph. Also a set-style key.
   - MIXED FORMATTING inside one paragraph: pass "runs" instead of "text":
       {"runs":[{"text":"We measured "},
                {"text":"5x","bold":true,"color":"F8DE6E"},
@@ -2778,6 +2835,10 @@ set-style      {"op":"set-style","slide":3,"shape":"s12",...}
     unrotated bounding box).
   - "insets":[l,t,r,b] = text-frame internal margins in INCHES (PowerPoint
     defaults are 0.1/0.05/0.1/0.05, NOT zero — set [0,0,0,0] for flush text).
+  - "anchor":"MIDDLE" = vertical text anchor within the box: TOP|MIDDLE|BOTTOM
+    (the default is TOP). This is how text gets centered in a box taller than
+    the text — alignment (set-text) is HORIZONTAL, anchor is VERTICAL. Applies
+    to all table cells too. inspect reports it when it is not the TOP default.
   - "adjustments":[0.12] = shape adjustment handles (e.g. roundRect corner
     radius as a fraction of the smaller dimension, max 0.5).
   - "shadow":false = remove the theme's inherited drop shadow (new autoshapes

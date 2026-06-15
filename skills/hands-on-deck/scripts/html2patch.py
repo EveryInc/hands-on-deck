@@ -116,6 +116,34 @@ EXTRACT_JS = r"""
              w: el.offsetWidth, h: el.offsetHeight };
   };
 
+  // Where does the text actually sit inside its box? Measured, not guessed:
+  // the browser has already applied flex/grid centering, line-height, explicit
+  // heights, etc. We read the rendered text ink box and compare it to the
+  // element's content box. A box that hugs its text → top (the default, no
+  // anchor needed); text floating centered or pinned to the bottom of a taller
+  // box → MIDDLE / BOTTOM, which PPTX needs as an explicit vertical anchor.
+  const measureVAnchor = (el, style) => {
+    const r = el.getBoundingClientRect();
+    const top = r.top + (parseFloat(style.borderTopWidth) || 0) + (parseFloat(style.paddingTop) || 0);
+    const bottom = r.bottom - (parseFloat(style.borderBottomWidth) || 0) - (parseFloat(style.paddingBottom) || 0);
+    const contentH = bottom - top;
+    if (contentH <= 0) return null;
+    let tr;
+    try {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      tr = range.getBoundingClientRect();
+    } catch (e) { return null; }
+    if (!tr || tr.height <= 0) return null;
+    const slack = contentH - tr.height;
+    if (slack < 4) return null;  // box hugs the text → default top
+    const topGap = tr.top - top, botGap = bottom - tr.bottom;
+    const tol = Math.max(2, slack * 0.2);
+    if (Math.abs(topGap - botGap) <= tol) return 'MIDDLE';
+    if (botGap <= tol && topGap > tol) return 'BOTTOM';
+    return null;  // top-anchored or ambiguous → leave as default
+  };
+
   const visible = (el, style) => {
     if (style.display === 'none' || style.visibility === 'hidden') return false;
     if (parseFloat(style.opacity) === 0) return false;
@@ -343,6 +371,7 @@ EXTRACT_JS = r"""
       if (paras.length)
         out.items.push({ type: 'text', box, rotation: rot,
                          paragraphs: paras.map(runs => ({ runs })),
+                         vanchor: measureVAnchor(el, style),
                          meta: blockMeta(el, style) });
       return;
     }
@@ -533,6 +562,8 @@ def text_block_ops(item, slide_ref, name, warnings):
     }
     if item.get("rotation"):
         op["rotation"] = item["rotation"]
+    if item.get("vanchor"):
+        op["anchor"] = item["vanchor"]
     return [op]
 
 

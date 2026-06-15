@@ -567,3 +567,44 @@ def test_set_notes_registers_notes_master(deck, tmp_path):
     assert r.returncode == 0
     with zipfile.ZipFile(out2) as z:
         assert z.read("ppt/presentation.xml").decode().count("notesMasterIdLst") == 2  # open+close tag
+
+
+def test_vertical_anchor_set_style_and_inspect(deck, tmp_path):
+    """anchor (TOP|MIDDLE|BOTTOM) is settable via set-style and surfaced by
+    inspect — the vertical counterpart to paragraph alignment."""
+    sid = find_sid(inspect(deck, "--slide", "0"), 0, paragraphs="Hello World")
+    # default top → inspect omits the anchor field
+    assert "anchor" not in shapes_of(inspect(deck, "--slide", "0"), 0)[sid]
+
+    out = tmp_path / "anchored.pptx"
+    r = apply_patch(deck, [{"op": "set-style", "slide": 0, "shape": sid, "anchor": "MIDDLE"}], out)
+    assert r.returncode == 0, r.stderr
+    assert shapes_of(inspect(out, "--slide", "0"), 0)[sid]["anchor"] == "MIDDLE"
+    # brief view shows it too
+    brief = run(out, "inspect", "--slide", "0", "--brief")
+    assert "anchor=MIDDLE" in brief.stdout
+
+    # and it actually lands in the XML
+    from pptx import Presentation as _P
+    tf = [s for s in _P(out).slides[0].shapes if s.has_text_frame and "Hello World" in s.text_frame.text][0].text_frame
+    assert str(tf.vertical_anchor).startswith("MIDDLE")
+
+
+def test_vertical_anchor_on_set_text(deck, tmp_path):
+    """set-text accepts anchor at the op level, applied to the frame it edits."""
+    sid = find_sid(inspect(deck, "--slide", "0"), 0, paragraphs="Hello World")
+    out = tmp_path / "t.pptx"
+    r = apply_patch(deck, [{"op": "set-text", "slide": 0, "shape": sid,
+                            "text": ["Now centered"], "anchor": "BOTTOM"}], out)
+    assert r.returncode == 0, r.stderr
+    assert shapes_of(inspect(out, "--slide", "0"), 0)[sid]["anchor"] == "BOTTOM"
+
+
+def test_invalid_anchor_rejected_atomically(deck, tmp_path):
+    """A bad anchor value fails validation and writes nothing."""
+    sid = find_sid(inspect(deck, "--slide", "0"), 0, paragraphs="Hello World")
+    out = tmp_path / "nope.pptx"
+    r = apply_patch(deck, [{"op": "set-style", "slide": 0, "shape": sid, "anchor": "SIDEWAYS"}], out)
+    assert r.returncode != 0
+    assert "anchor 'SIDEWAYS' invalid" in r.stdout
+    assert not out.exists()

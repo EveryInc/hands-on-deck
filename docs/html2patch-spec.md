@@ -87,6 +87,12 @@ Elements that are invisible (`display:none`, `visibility:hidden`, zero-area,
 ## Text model
 
 Per text block:
+- **Vertical anchor** is measured, not guessed: the rendered text ink box (a Range
+  over the element's contents) is compared to the element's content box. A box that
+  hugs its text → top (the PPTX default, no `anchor` emitted); text floating with
+  roughly equal slack above and below → `anchor: MIDDLE`; text pinned to the bottom
+  → `anchor: BOTTOM`. This captures flex/grid centering, explicit heights, and any
+  other layout the browser resolved, with no per-property CSS rules to maintain.
 - **Paragraph properties** from computed style: `alignment` (text-align left/center/
   right/justify → LEFT/CENTER/RIGHT/JUSTIFY), `line_spacing` = computed line-height
   px × 0.75 (Pt), `space_before`/`space_after` = 0 for v1 (inter-block spacing is
@@ -117,6 +123,7 @@ Per text block:
 | border (non-uniform, e.g. accent bar) | one `add-shape kind=line` per painted side, inset by half the width |
 | border-radius > 0 | shape kind `rounded_rect` + `adjustments:[radius / min(w,h)]` (true radius, clamped to 0.5) |
 | transform: rotate(θ) / writing-mode vertical | `rotation` with pre-rotation box math (see learnings) |
+| flex/grid centering, explicit height (text floats in a taller box) | `anchor` MIDDLE/BOTTOM, measured from the rendered text's position in its box |
 | background-image: url(...) (body or any box) | `add-picture` under the element's children; `background-size: cover/contain` honored |
 | object-fit: cover / contain on `<img>` | `crop:[l,t,r,b]` source fractions (cover) or letterboxed target rect (contain), computed from the file with PIL |
 | `<ol>` | paragraphs with `bullet:"number"` (a:buAutoNum); `<ul>` → `bullet:true` |

@@ -88,7 +88,8 @@ craft on what survives:
   uniform and partial borders (accent bars!), true corner radii, real tables
   with per-cell fills and measured column widths, `object-fit: cover` crops,
   `transform: rotate`, `text-transform`, numbered and bulleted lists, padding
-  (becomes text insets), per-run bold/italic/color/size mixing.
+  (becomes text insets), per-run bold/italic/color/size mixing, vertical
+  centering of text in a taller box (flex/grid/explicit-height → an `anchor`).
 - **Doesn't**: box-shadow, letter-spacing, text gradients, blend modes,
   filters, custom webfonts, animation of any kind. If a treatment depends on
   these, it will quietly vanish — design something that doesn't need it.

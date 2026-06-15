@@ -32,7 +32,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 from PIL import Image, ImageDraw, ImageFont
 from pptx import Presentation
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.shapes.base import BaseShape
 
 # Type aliases for cleaner signatures
@@ -508,6 +508,21 @@ class ShapeData:
         self._detect_bullet_issues()
 
     @property
+    def vertical_anchor(self) -> Optional[str]:
+        """Vertical anchor of the text frame (TOP|MIDDLE|BOTTOM).
+
+        Returns None when the anchor is the default top (or unreadable) so the
+        inspect output stays uncluttered — mirrors how alignment is only shown
+        when it is not the LEFT default."""
+        if not self.shape or not getattr(self.shape, "has_text_frame", False):
+            return None
+        try:
+            va = self.shape.text_frame.vertical_anchor
+        except Exception:
+            return None
+        return {MSO_ANCHOR.MIDDLE: "MIDDLE", MSO_ANCHOR.BOTTOM: "BOTTOM"}.get(va)
+
+    @property
     def paragraphs(self) -> List[ParagraphData]:
         """Calculate paragraphs from the shape's text frame."""
         if not self.shape or not hasattr(self.shape, "text_frame"):
@@ -767,6 +782,11 @@ class ShapeData:
         # Add warnings field if there are warnings
         if self.warnings:
             result["warnings"] = self.warnings
+
+        # Vertical anchor — only when it differs from the default top
+        anchor = self.vertical_anchor
+        if anchor:
+            result["anchor"] = anchor
 
         # Add paragraphs after placeholder_type
         result["paragraphs"] = [para.to_dict() for para in self.paragraphs]

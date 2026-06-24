@@ -608,3 +608,103 @@ def test_invalid_anchor_rejected_atomically(deck, tmp_path):
     assert r.returncode != 0
     assert "anchor 'SIDEWAYS' invalid" in r.stdout
     assert not out.exists()
+
+
+# --- alignment near-miss linter (within-slide) -----------------------------
+
+from pptx.enum.shapes import MSO_SHAPE
+
+
+def _align_deck(tmp_path, specs):
+    """Build a deck of plain shapes from (kind, left, top, w, h) specs.
+    kind: 'rect' (all edges load-bearing) or 'text' (left-aligned textbox)."""
+    prs = Presentation()
+    prs.slide_width, prs.slide_height = Inches(13.33), Inches(7.5)
+    s = prs.slides.add_slide(prs.slide_layouts[6])
+    for kind, l, t, w, h in specs:
+        if kind == "text":
+            tb = s.shapes.add_textbox(Inches(l), Inches(t), Inches(w), Inches(h))
+            tb.text_frame.paragraphs[0].add_run().text = "left-aligned label"
+        else:
+            s.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(l), Inches(t), Inches(w), Inches(h))
+    p = tmp_path / "align.pptx"
+    prs.save(p)
+    return p
+
+
+def _misaligned(data, idx):
+    return {sid: e["issues"]["misaligned"]
+            for sid, e in shapes_of(data, idx).items()
+            if "misaligned" in e.get("issues", {})}
+
+
+def test_alignment_flags_near_miss_to_populated_gridline(tmp_path):
+    # three cards share right edge = 5.0; a fourth lands at 4.86 (0.14" short)
+    p = _align_deck(tmp_path, [
+        ("rect", 1, 1.0, 4.0, 0.5),
+        ("rect", 1, 2.0, 4.0, 0.5),
+        ("rect", 1, 3.0, 4.0, 0.5),
+        ("rect", 1, 4.0, 3.86, 0.5),
+    ])
+    flagged = _misaligned(inspect(p, "--slide", "0"), 0)
+    assert len(flagged) == 1, flagged
+    msg = " ".join(next(iter(flagged.values())))
+    assert "right edge" in msg and '5.00"' in msg and "3 shapes" in msg
+
+
+def test_alignment_silent_on_exact_column(tmp_path):
+    # four cards perfectly share right = 5.0 — intentional, never flagged
+    p = _align_deck(tmp_path, [
+        ("rect", 1, 1.0, 4.0, 0.5),
+        ("rect", 1, 2.0, 4.0, 0.5),
+        ("rect", 1, 3.0, 4.0, 0.5),
+        ("rect", 1, 4.0, 4.0, 0.5),
+    ])
+    assert _misaligned(inspect(p, "--slide", "0"), 0) == {}
+
+
+def test_alignment_silent_on_two_real_columns(tmp_path):
+    # two intentional gridlines 0.12" apart, each with 3 members → both ON-grid
+    p = _align_deck(tmp_path, [
+        ("rect", 1, 1.0, 4.0, 0.5), ("rect", 1, 2.0, 4.0, 0.5), ("rect", 1, 3.0, 4.0, 0.5),
+        ("rect", 1, 4.0, 4.12, 0.5), ("rect", 1, 5.0, 4.12, 0.5), ("rect", 1, 6.0, 4.12, 0.5),
+    ])
+    assert _misaligned(inspect(p, "--slide", "0"), 0) == {}
+
+
+def test_alignment_silent_below_min_cluster(tmp_path):
+    # only two shapes share the edge — too few to assert a gridline
+    p = _align_deck(tmp_path, [
+        ("rect", 1, 1.0, 4.0, 0.5),
+        ("rect", 1, 2.0, 4.0, 0.5),
+        ("rect", 1, 3.0, 3.86, 0.5),
+    ])
+    assert _misaligned(inspect(p, "--slide", "0"), 0) == {}
+
+
+def test_alignment_ignores_ragged_text_right_edge(tmp_path):
+    # three rects fix a right gridline at 5.0; a left-aligned textbox whose box
+    # right edge lands at 4.89 must NOT flag (its right edge is meaningless),
+    # but the same geometry as a rect MUST flag — proving load-bearing weighting.
+    base = [("rect", 1.0, 1.0, 4.0, 0.5), ("rect", 1.5, 2.0, 3.5, 0.5), ("rect", 2.0, 3.0, 3.0, 0.5)]
+    p_text = _align_deck(tmp_path, base + [("text", 3.0, 4.5, 1.89, 0.5)])
+    assert _misaligned(inspect(p_text, "--slide", "0"), 0) == {}, "ragged text right edge flagged"
+
+    p_rect = _align_deck(tmp_path, base + [("rect", 3.0, 4.5, 1.89, 0.5)])
+    assert _misaligned(inspect(p_rect, "--slide", "0"), 0), "load-bearing rect right edge not flagged"
+
+
+def test_alignment_rides_apply_lint_when_newly_introduced(tmp_path):
+    # a clean column; moving one card a hair off its shared right edge surfaces
+    # as a new/worsened issue on apply — advisory, exit stays 0
+    p = _align_deck(tmp_path, [
+        ("rect", 1, 1.0, 4.0, 0.5),
+        ("rect", 1, 2.0, 4.0, 0.5),
+        ("rect", 1, 3.0, 4.0, 0.5),
+        ("rect", 1, 4.0, 4.0, 0.5),
+    ])
+    sid = find_sid(inspect(p, "--slide", "0"), 0, pos=4.0)  # the y=4.0 card
+    out = tmp_path / "nudged.pptx"
+    r = apply_patch(p, [{"op": "resize", "slide": 0, "shape": sid, "size": [3.86, 0.5]}], out)
+    assert r.returncode == 0, r.stderr
+    assert "alignment near-miss" in r.stdout and "right edge" in r.stdout

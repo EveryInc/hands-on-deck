@@ -966,6 +966,28 @@ def detect_overlaps(shapes: List[ShapeData]) -> None:
                 shape2.overlapping_shapes[shape1.shape_id] = overlap_area
 
 
+def cluster_1d(items, eps):
+    """Greedy 1-D clustering of edge coordinates.
+
+    items: iterable of (key, coord) pairs (key identifies who owns the edge).
+    Sorts by coord and starts a new cluster wherever the gap to the previous
+    coord exceeds eps. Returns a list of clusters, each a list of (key, coord).
+    Single-linkage drift is irrelevant here: real gridlines are far tighter
+    than eps, so a populated cluster stays tight."""
+    out = []
+    cur = []
+    last = None
+    for key, coord in sorted(items, key=lambda kc: kc[1]):
+        if last is not None and coord - last > eps:
+            out.append(cur)
+            cur = []
+        cur.append((key, coord))
+        last = coord
+    if cur:
+        out.append(cur)
+    return out
+
+
 def extract_text_inventory(
     pptx_path: Path, prs: Optional[Any] = None, issues_only: bool = False
 ) -> InventoryData:

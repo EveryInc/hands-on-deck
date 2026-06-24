@@ -48,7 +48,10 @@ First pass, before any slide file: write a compact design plan.
 - **Grid** — the margins, eyebrow row, and footer line every slide will
   share. Decide the left margin ONCE, in pixels, and put it in a shared CSS
   block. Slides are viewed in sequence: a margin that jumps between slides
-  reads as a mistake even when each slide is fine alone.
+  reads as a mistake even when each slide is fine alone. `inspect`/`apply`
+  enforce this by measurement: a `misaligned` issue means an edge landed a
+  hair off a gridline its siblings share — the near-miss that reads as sloppy.
+  Snap it to the reported coordinate.
 - **Signature** — the one element this deck will be remembered by: a
   recurring motif, an unusual headline treatment, a diagram language, a
   full-bleed texture. One. Everything else stays quiet so it can speak.

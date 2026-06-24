@@ -50,7 +50,9 @@ shapes on slide 0:
 
 **All errors at once, atomically.** Every op is pre-validated; a 9-op patch with 9 mistakes returns 9 actionable errors and writes zero bytes. No partially-edited decks, ever — runtime failures abort the whole patch too.
 
-**The linter watches the agent's hands.** After every apply, the deck is re-measured and only *new or worsened* geometry problems are reported — text overflowing its box, shapes off the slide, text-on-text overlaps, text trapped *under* a picture (it renders clipped — the defect a thumbnail never shows) — each with exact inch values and the exact `fix` command to run.
+**The linter watches the agent's hands.** After every apply, the deck is re-measured and only *new or worsened* geometry problems are reported — text overflowing its box, shapes off the slide, text-on-text overlaps, text trapped *under* a picture (it renders clipped — the defect a thumbnail never shows), and edges that *almost* line up — each with exact inch values and the exact `fix` command to run.
+
+**It catches the near-miss, not the design.** Alignment bugs are a hair off, never a mile: nobody means "3px short of the card edge." The linter discovers the deck's implicit grid (clusters the edges several shapes actually share) and flags the lone edge sitting in the uncanny valley beside a gridline — `s14 right=10.52" — 0.14" short of the cluster at 10.66" (4 shapes)`. It never needs to know what the design *should* be; it only needs to know that an edge is trying to align and failing. Purely advisory — intentional asymmetry is real, so it ranks by suspicion and never fails the build.
 
 **Repair is honest.** `fix` deterministically grows boxes, shrinks fonts (with a readability floor), and nudges shapes back on-slide — then *re-measures*. Anything still broken is reported as *residue* with a suggested op, not claimed as fixed. Pictures bleeding off-slide are never auto-moved (it might be intentional design).
 

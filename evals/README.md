@@ -12,14 +12,19 @@ evals/
 ├── tasks/         # builder briefs (what the competing agents are asked to do)
 │   ├── create-dynamic-workflows.md    # from-scratch: 15-slide deck, web research, real assets
 │   ├── edit-retheme-and-insert.md     # edit: full palette re-theme + insert one new slide
-│   └── edit-two-world-reskin.md       # edit: partial per-slide re-skin + targeted edits + notes (replayed real request)
+│   ├── edit-two-world-reskin.md       # edit: partial per-slide re-skin + targeted edits + notes (replayed real request)
+│   ├── edit-every-consulting-rebuild.md  # edit: full visual-system rebuild into a documented brand
+│   └── edit-claude-tag-review-loop.md # edit: find-and-fix five render-only defects (no defect list given)
 ├── judges/        # judge briefs (how results are scored)
 │   ├── create-judge.md   # 7-dimension blind scoring for from-scratch decks
 │   ├── edit-judge.md     # 6-dimension blind scoring for edit quality
 │   ├── edit-auditor.md   # forensic fidelity audit (machine-assisted, non-aesthetic)
-│   └── edit-auditor-two-world.md  # task-specific audit: world map, thread continuity, notes validity
+│   ├── edit-auditor-two-world.md  # task-specific audit: world map, thread continuity, notes validity
+│   └── edit-auditor-claude-tag.md # answer-key audit: scores found/fixed/verified against the 5-defect manifest
 ├── assets/        # committed task inputs (only when a task needs a fixed real artifact)
-│   └── two-world-reskin-input.pptx    # the real 18-slide ink-v1 deck the request started from
+│   ├── two-world-reskin-input.pptx    # the real 18-slide ink-v1 deck the request started from
+│   ├── every-consulting-rebuild/      # the 15-slide source deck + brand guidelines/assets
+│   └── claude-tag-review-loop/         # claude-tag-v1-buggy.pptx — the 12-slide deck with all 5 defects present
 ├── scripts/
 │   └── blind.py   # anonymizes two arms' renders into deck-A/deck-B for the judges
 └── results/       # one markdown verdict log per run (committed; heavy artifacts stay local)

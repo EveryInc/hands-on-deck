@@ -95,7 +95,7 @@ LINE_DASH_STYLES = {
     "square_dot": MSO_LINE_DASH_STYLE.SQUARE_DOT,
 }
 
-from inventory import ParagraphData, ShapeData
+from inventory import ParagraphData, ShapeData, cluster_1d
 from replace import apply_font_properties, apply_paragraph_properties
 
 EMU_PER_IN = 914400
@@ -171,6 +171,7 @@ class Rec:
                     self.rids.append((rid, part.rels[rid].target_ref.split("/")[-1]))
         self.sd = None  # ShapeData, attached when measuring
         self.covered_by = {}  # {picture_sid: sq in} — pictures above this text in z-order
+        self.misaligned = []  # [{edge, off, target, aligns, with}] — near-miss to a gridline
 
     def text_preview(self, n=48):
         if self.is_text:
@@ -204,6 +205,101 @@ def _group_child_tf(gshape, tf):
     sx = (g_abs_w / chw) if chw else 1.0
     sy = (g_abs_h / chh) if chh else 1.0
     return TF(g_abs_l, g_abs_t, sx, sy, chx, chy)
+
+
+# --- alignment near-miss detection (within-slide) --------------------------
+# Alignment bugs are near-misses, not far-misses: an edge a hair off a shared
+# gridline ("3px short of the card edge") is almost always a mistake, while an
+# exact match is intentional and a large gap is just a different thing. We
+# discover the grid from the artifact (cluster each edge role per axis) and
+# flag the lone edge that sits in the uncanny valley beside a populated cluster.
+# Purely advisory — intentional asymmetry is real, so this never fails a build.
+ALIGN_EPS = 0.03          # within this of a centroid = ON the gridline (inspect rounds to 0.01")
+ALIGN_BAND = 0.15         # eps..band off a populated cluster = a flaggable near-miss
+ALIGN_MIN_CLUSTER = 3     # only trust a gridline that >=3 edges actually share
+ALIGN_MIN_DIM = 0.15      # ignore sub-this-inch specks (icon dots, bullet glyphs)
+ALIGN_MIN_THICK = 0.05    # a shape this thin in either axis is a rule/divider/connector, not a grid box
+ALIGN_BLEED_FRAC = 0.95   # an edge whose shape spans ~the full slide in that axis is decorative
+
+
+def _para_alignment(rec):
+    """Horizontal alignment of a text rec's first non-empty paragraph
+    (None == LEFT/default), used to weight which edges are load-bearing."""
+    try:
+        for p in rec.shape.text_frame.paragraphs:
+            if p.text.strip():
+                return ParagraphData(p).alignment
+    except Exception:
+        return None
+    return None
+
+
+def _alignment_edges(rec, slide_w, slide_h):
+    """The LOAD-BEARING edges of a shape as {role: coord_in}. A left-aligned
+    text box has a meaningful left edge but a ragged, meaningless right edge —
+    only edges that actually carry the layout participate in clustering, which
+    is what keeps the false-positive rate down. Returns {} for shapes that
+    shouldn't anchor a grid (groups + their children, specks, full-bleed art)."""
+    if rec.type == "GROUP" or rec.group is not None:
+        return {}  # groups are self-contained design units; skip container + members
+    if rec.width < ALIGN_MIN_DIM and rec.height < ALIGN_MIN_DIM:
+        return {}
+    if rec.width < ALIGN_MIN_THICK or rec.height < ALIGN_MIN_THICK:
+        return {}  # a rule/divider/connector — you can't grid-align "to a line"
+    x_bleed = rec.width >= ALIGN_BLEED_FRAC * slide_w
+    y_bleed = rec.height >= ALIGN_BLEED_FRAC * slide_h
+    L, R, HC = rec.left, rec.left + rec.width, rec.left + rec.width / 2.0
+    T, B, VC = rec.top, rec.top + rec.height, rec.top + rec.height / 2.0
+    edges = {}
+    if rec.is_text and not rec.is_table:
+        # ONLY the horizontal load-bearing edge: a text frame's vertical extent
+        # is loose (internal insets + line leading + anchor), so its top/bottom/
+        # center are weak grid signals and a heavy false-positive source.
+        align = _para_alignment(rec)
+        if not x_bleed:
+            if align in (None, "LEFT", "JUSTIFY"):
+                edges["left"] = L
+            if align in ("RIGHT", "JUSTIFY"):
+                edges["right"] = R
+            if align == "CENTER":
+                edges["hcenter"] = HC
+    else:
+        if not x_bleed:
+            edges.update(left=L, right=R, hcenter=HC)
+        if not y_bleed:
+            edges.update(top=T, bottom=B, vcenter=VC)
+    return edges
+
+
+def _detect_alignment(recs, slide_w, slide_h):
+    """Stamp rec.misaligned for edges that sit in a tolerance band beside a
+    populated same-role gridline but not on it. Clusters per (axis) role so a
+    suggestion is unambiguous (right edge vs the right-edge gridline)."""
+    by_role = {}
+    for sid, r in recs.items():
+        for role, coord in _alignment_edges(r, slide_w, slide_h).items():
+            by_role.setdefault(role, []).append((sid, coord))
+    for role, items in by_role.items():
+        grids = [c for c in cluster_1d(items, ALIGN_EPS) if len(c) >= ALIGN_MIN_CLUSTER]
+        if not grids:
+            continue
+        centroids = [(sum(c for _, c in g) / len(g), [s for s, _ in g]) for g in grids]
+        for sid, coord in items:
+            # already sitting on some gridline (incl. a competing one) — not a bug
+            if any(abs(coord - cen) <= ALIGN_EPS for cen, _ in centroids):
+                continue
+            best = None
+            for cen, members in centroids:
+                d = abs(coord - cen)
+                if ALIGN_EPS < d <= ALIGN_BAND and (best is None or d < best[0]):
+                    best = (d, cen, members)
+            if best is None:
+                continue
+            d, cen, members = best
+            recs[sid].misaligned.append({
+                "edge": role, "off": round(d, 2), "target": round(cen, 2),
+                "aligns": len(members), "with": members,
+            })
 
 
 def build_index(prs, measure=False, only_slides=None):
@@ -268,6 +364,10 @@ def build_index(prs, measure=False, only_slides=None):
                     hit, area = calculate_overlap(trect, (o.left, o.top, o.width, o.height))
                     if hit:
                         r.covered_by[o.sid] = area
+            # within-slide alignment near-misses (advisory; intentional
+            # asymmetry is real, so this only flags edges a hair off a
+            # gridline several other shapes actually share)
+            _detect_alignment(recs, inches(prs.slide_width), inches(prs.slide_height))
         index[slide_idx] = recs
     return index
 
@@ -298,6 +398,13 @@ def rec_issues(rec):
         out["overlaps"] = rec.sd.overlapping_shapes
     if rec.covered_by:
         out["covered_by"] = rec.covered_by
+    if rec.misaligned:
+        out["misaligned"] = [
+            '%s edge %.2f" off gridline %.2f" (%d shapes: %s)'
+            % (m["edge"], m["off"], m["target"], m["aligns"], ",".join(m["with"][:4])
+               + ("…" if len(m["with"]) > 4 else ""))
+            for m in rec.misaligned
+        ]
     if rec.sd.warnings:
         out["warnings"] = rec.sd.warnings
     return out
@@ -2157,6 +2264,11 @@ def cmd_apply(args):
                     new_issues.append(
                         "slide %d %s: text extends under picture(s) %s — it renders CLIPPED behind them"
                         % (key[0], key[1], v))
+            elif k == "misaligned":
+                if k not in prev:
+                    new_issues.append(
+                        "slide %d %s: edge alignment near-miss — %s (advisory)"
+                        % (key[0], key[1], "; ".join(v)))
             elif k in ("overlaps", "warnings"):
                 if k not in prev:
                     new_issues.append("slide %d %s: new %s %s" % (key[0], key[1], k, v))
@@ -2926,6 +3038,14 @@ INSPECT FIELDS
     covered_by  {picture_sid: sq inches}  text drawn UNDER a picture that is
       above it in z-order — including its estimated overflow region. This
       text renders clipped/hidden; it is almost never a false positive.
+    misaligned  an edge sitting a hair (0.03"-0.15") off a gridline that >=3
+      other shapes share — the near-miss that reads as sloppy ("3px short of
+      the card edge"). The grid is discovered from the deck, not configured.
+      ADVISORY: intentional asymmetry is real, so this never fails a build and
+      only the load-bearing edge counts (a left-aligned box's ragged right
+      edge is ignored). Exact matches and far gaps are silent. On apply, only
+      a NEWLY introduced near-miss is reported. To resolve: move/resize so the
+      edge lands on the named gridline coordinate.
   --issues = only problem shapes; --master = masters/layouts too (footers!)
 
 DECK STRUCTURE (subcommands, not patch ops)

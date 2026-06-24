@@ -132,6 +132,23 @@ toolchains; both arms received identical content):
 > The deck's subject matter is irrelevant and identical across both teams. Judge
 > ONLY the quality of the edits — never the deck's claims or copy.
 
+**For `tasks/edit-claude-tag-slack-fidelity.md`** the scoring is answer-key-based, not
+taste-based, so it does NOT use the design judges. Run only
+`judges/edit-auditor-claude-tag-slack-fidelity.md` (one copy per arm, or one copy covering
+both — it holds the tell manifest and scores each arm independently). This auditor needs, per
+arm, the edited renders (`deck-A/*.jpg`), the *original wireframe* renders (`orig-A/*.jpg`), the
+arm's `final.pptx` (copied in as `file-A.pptx`), and the arm's `changes.json` (copied in as
+`changes-A.json`) — all assignment-matched, arm names hidden. Phase 0 note: this is a
+**same-deck** task — copy the committed input
+`evals/assets/claude-tag-slack-fidelity/slack-wireframe-input.pptx` to each arm's
+`{{WORKDIR}}/deck.pptx` and render the originals now (the auditor needs pre-fix images). Because
+there is a fixed answer key, blinding/order-rotation matters less here, but still hide arm names
+so the write-up stays neutral. This task also runs fine **single-arm** as a pure capability
+probe (one arm, score the weighted tell scorecard P0/P1/P2). Note: every tell on this task is
+no-machine-signal — there is no linter floor — so the auditor weighs discovery breadth (how many
+of the 10 tells the arm even found, with no checklist) alongside fix correctness and
+render-verified consistency across all 12 slides.
+
 ## Phase 5 — unblind and tally
 
 Only after every judge's final verdict is in:

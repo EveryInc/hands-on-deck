@@ -2436,8 +2436,16 @@ def cmd_render(args):
             if hidden:
                 print("note: hidden slide(s) %s are skipped in a full render (render them explicitly with --slide)" % hidden)
 
+        # Isolated LibreOffice profile per render call. soffice locks a single
+        # shared *default* user profile, so two render processes launched at once
+        # deadlock/fail on that lock — which would force callers to serialize all
+        # rendering. A per-call UserInstallation (inside this call's tempdir) gives
+        # each soffice its own profile, making renders safe to run in parallel
+        # (e.g. one review sub-agent per slide). Costs a fresh-profile init per
+        # call; cheap next to the parallelism it unlocks.
+        prof = (td / "louser").as_uri()
         r = subprocess.run(
-            ["soffice", "--headless", "--convert-to", "pdf", str(target), "--outdir", str(td)],
+            ["soffice", "-env:UserInstallation=%s" % prof, "--headless", "--convert-to", "pdf", str(target), "--outdir", str(td)],
             capture_output=True, text=True,
         )
         pdf = target.with_suffix(".pdf")

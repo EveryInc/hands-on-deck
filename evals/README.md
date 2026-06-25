@@ -12,14 +12,17 @@ evals/
 ├── tasks/         # builder briefs (what the competing agents are asked to do)
 │   ├── create-dynamic-workflows.md    # from-scratch: 15-slide deck, web research, real assets
 │   ├── edit-retheme-and-insert.md     # edit: full palette re-theme + insert one new slide
-│   └── edit-two-world-reskin.md       # edit: partial per-slide re-skin + targeted edits + notes (replayed real request)
+│   ├── edit-two-world-reskin.md       # edit: partial per-slide re-skin + targeted edits + notes (replayed real request)
+│   └── edit-claude-tag-comment-revisions.md # edit: apply five reviewer comments to a finished deck (1-based→0-based indexing trap)
 ├── judges/        # judge briefs (how results are scored)
 │   ├── create-judge.md   # 7-dimension blind scoring for from-scratch decks
 │   ├── edit-judge.md     # 6-dimension blind scoring for edit quality
 │   ├── edit-auditor.md   # forensic fidelity audit (machine-assisted, non-aesthetic)
-│   └── edit-auditor-two-world.md  # task-specific audit: world map, thread continuity, notes validity
+│   ├── edit-auditor-two-world.md  # task-specific audit: world map, thread continuity, notes validity
+│   └── edit-auditor-claude-tag-comment-revisions.md # answer-key audit: five-comment execution + indexing trap
 ├── assets/        # committed task inputs (only when a task needs a fixed real artifact)
-│   └── two-world-reskin-input.pptx    # the real 18-slide ink-v1 deck the request started from
+│   ├── two-world-reskin-input.pptx    # the real 18-slide ink-v1 deck the request started from
+│   └── claude-tag-comment-revisions/  # comment-revisions-input.pptx — the 12-slide Claude Tag (Slack-UI) deck pre-revision
 ├── scripts/
 │   └── blind.py   # anonymizes two arms' renders into deck-A/deck-B for the judges
 └── results/       # one markdown verdict log per run (committed; heavy artifacts stay local)

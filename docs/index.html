@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>hands-on-deck — agent-native PowerPoint manipulation</title>
-<meta name="description" content="One CLI lets AI agents inspect, edit, create, and verify .pptx files with the fidelity of a human operator. MIT licensed, built by Every Consulting.">
+<meta name="description" content="One CLI lets AI agents inspect, edit, create, and verify .pptx files. MIT licensed, built by Every Consulting.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
@@ -75,22 +75,6 @@
 
   ::selection { background: #E8A33D; color: #1C1612; }
 
-  /* ---------- atmosphere ---------- */
-  .grain {
-    position: fixed; inset: -50%; z-index: 60; pointer-events: none;
-    width: 200%; height: 200%;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    opacity: 0.028;
-    animation: grain 9s steps(10) infinite;
-  }
-  @keyframes grain {
-    0%,100% { transform: translate(0,0); } 10% { transform: translate(-3%,-5%); }
-    20% { transform: translate(-7%,2%); } 30% { transform: translate(4%,-9%); }
-    40% { transform: translate(-2%,8%); } 50% { transform: translate(-7%,3%); }
-    60% { transform: translate(8%,0%); } 70% { transform: translate(0%,6%); }
-    80% { transform: translate(2%,-7%); } 90% { transform: translate(-5%,5%); }
-  }
-
   .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; position: relative; z-index: 2; }
 
   /* ---------- the amber thread ----------
@@ -129,29 +113,6 @@
       var(--bg);
   }
 
-  /* the self-XML wall — what the agent actually sees */
-  .xmlwall {
-    position: absolute; inset: 0; overflow: hidden;
-    pointer-events: none; user-select: none; z-index: 0;
-  }
-  .xmlwall pre {
-    column-count: 4; column-gap: 42px;
-    font-family: var(--mono); font-size: 9.5px; line-height: 1.6;
-    color: #2B2117; height: 110%;
-    padding: 12px 28px;
-    white-space: pre-wrap; word-break: break-all;
-  }
-  .xmlwall .xa { color: #3D2C1A; }
-
-  /* ---------- ghost numerals ---------- */
-  .ghost-no {
-    position: absolute; top: -56px; right: -10px; z-index: 0;
-    font-family: var(--display); font-weight: 560; font-style: normal;
-    font-size: clamp(150px, 17vw, 250px); line-height: 0.78;
-    color: var(--ghost); pointer-events: none; user-select: none;
-  }
-  .w-paper .ghost-no { color: #EDE5D3; }
-
   /* ---------- type helpers ---------- */
   .eyebrow {
     font-family: var(--mono);
@@ -180,6 +141,7 @@
     margin-top: 22px;
   }
   .lede strong { color: var(--fg); font-weight: 620; }
+  .lede em { font-style: italic; }
   .lede code, p code {
     font-family: var(--mono); font-size: 0.82em;
     color: var(--sub);
@@ -265,13 +227,10 @@
     border: 1px solid var(--hair);
     padding: 1px 6px; border-radius: 3px;
   }
+  .hero-sub .pitch { display: block; margin-top: 14px; font-style: italic; color: var(--faint); }
+  .hero-sub .pitch b { color: var(--sub); font-weight: 620; font-style: normal; }
 
-  .hero-new { margin-top: 18px; font-size: 14.5px; }
-  .hero-new .new-flag { margin-right: 10px; }
-  .hero-new a { color: var(--acc); border-bottom: 1px dashed rgba(145,92,13,.4); padding-bottom: 2px; }
-  .hero-new a:hover { text-decoration: none; border-bottom-style: solid; }
-
-  .hero-grid > *, .patch-grid > *, .prin > *, .install-grid > *, .cov-grid > *, .paths > * { min-width: 0; }
+  .hero-grid > *, .patch-grid > *, .install-grid > *, .cov-grid > *, .paths > * { min-width: 0; }
   .hero-actions { margin-top: 38px; display: flex; gap: 16px; flex-wrap: wrap; align-items: stretch; max-width: 100%; }
 
   /* the install line is a terminal — terminals stay dark on paper */
@@ -371,39 +330,6 @@
   /* ---------- sections ---------- */
   .sect-pad { padding: clamp(56px, 7vw, 96px) 0; }
   .sect-head { position: relative; padding-top: 26px; }
-
-  /* ---------- § 01 problem chips ---------- */
-  .prob-grid {
-    display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-    gap: clamp(32px, 5vw, 72px);
-    margin-top: 52px; align-items: start;
-  }
-  .prob-copy p { color: var(--sub); font-size: 17px; max-width: 54ch; }
-  .prob-copy p + p { margin-top: 16px; }
-  .prob-copy p strong { color: var(--fg); font-weight: 620; }
-  .chip-stack { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
-  .chip-label {
-    font-family: var(--mono); font-size: 11.5px; font-weight: 700;
-    letter-spacing: 0.18em; text-transform: uppercase; color: var(--eyebrow);
-    margin-bottom: 4px;
-  }
-  .chip {
-    font-family: var(--mono); font-size: 13px; line-height: 1.5;
-    color: var(--acc); border: 1px solid var(--acc);
-    border-radius: 3px; padding: 9px 14px;
-    background: rgba(145,92,13,0.04);
-  }
-  .chip:nth-child(odd) { transform: rotate(-0.5deg); }
-  .chip:nth-child(even) { transform: rotate(0.4deg); }
-  .chip.solid {
-    background: var(--acc); color: #F6F1E7; font-weight: 700;
-  }
-  .prob-kicker {
-    margin-top: 56px; text-align: center;
-    font-family: var(--display); font-style: italic; font-weight: 460;
-    font-size: clamp(20px, 2.4vw, 27px); color: var(--sub);
-  }
-  .prob-kicker .hl { color: var(--acc); }
 
   /* ---------- three paths ---------- */
   .paths {
@@ -519,96 +445,30 @@
   }
   .patch-kicker b { color: var(--acc); font-weight: 700; }
 
-  /* ---------- § the CLI — gesture map (paper) ---------- */
-  .gest { margin-top: 60px; position: relative; z-index: 2; }
-  .gest-head {
-    display: grid; grid-template-columns: minmax(0,5fr) 40px minmax(0,7fr);
-    gap: 18px; padding-bottom: 12px;
-    font-family: var(--mono); font-size: 11.5px; font-weight: 700;
-    letter-spacing: 0.18em; text-transform: uppercase; color: var(--eyebrow);
-  }
-  .gest-head span:first-child { text-align: right; }
-  .gest-row {
-    display: grid; grid-template-columns: minmax(0,5fr) 40px minmax(0,7fr);
-    gap: 18px; align-items: baseline;
-    padding: 19px 0;
-    border-top: 1px solid var(--acc);
-  }
-  .gest-row .g-h {
-    font-family: var(--display); font-weight: 560;
-    font-size: clamp(19px, 2.1vw, 25px); letter-spacing: -0.01em;
-    color: var(--fg); text-align: right;
-  }
-  .gest-row .g-a { color: var(--acc); font-family: var(--mono); font-size: 15px; text-align: center; }
-  .gest-row .g-c { font-family: var(--mono); font-size: 14.5px; color: var(--sub); }
-  .gest-row .g-c b { color: var(--fg); font-weight: 700; }
-  .gest-row .g-c .dim { color: var(--faint); }
-  .gest-final {
-    border-top: 1px solid var(--acc); padding: 22px 0 0;
-    font-family: var(--mono); font-size: 14.5px; font-weight: 700; color: var(--acc);
-    text-align: right;
-  }
-  .gest-kicker {
-    margin-top: 52px; text-align: center;
-    font-family: var(--display); font-style: italic; font-weight: 460;
-    font-size: clamp(20px, 2.4vw, 27px); color: var(--sub);
-  }
-  .gest-kicker .hl { color: var(--acc); }
-
-  /* ---------- principles ---------- */
-  .principles { margin-top: 56px; position: relative; z-index: 2; }
-  .prin {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: clamp(28px, 5vw, 72px);
-    padding: 38px 0;
-    border-top: 1px solid var(--hair);
-    align-items: start;
-  }
-  .prin:first-child { border-top: none; padding-top: 0; }
-  .prin-head { position: sticky; top: 32px; }
-  .prin-no {
-    font-family: var(--mono); font-size: 12px; font-weight: 700;
-    letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--faint);
-  }
-  .prin-no b { color: var(--acc); margin-right: 8px; }
-  .prin h3 {
-    font-family: var(--display); font-weight: 560;
-    font-size: clamp(25px, 2.7vw, 33px);
-    line-height: 1.12; letter-spacing: -0.01em;
-    margin-top: 12px; color: var(--fg);
-  }
-  .prin h3 em { font-style: italic; font-weight: 440; color: var(--acc); }
-  .prin-body p { color: var(--sub); font-size: 16.5px; max-width: 56ch; }
-  .prin-body p + p { margin-top: 14px; }
-  .prin-body p strong { color: var(--fg); font-weight: 620; }
-  .prin-body p code { color: var(--sub); }
-  .prin-body .term { margin-top: 24px; }
-  .prin-body .term pre { font-size: 12.5px; }
-
-  /* ---------- coverage (paper) ---------- */
-  .cov-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 1px; background: var(--hair);
+  /* ---------- the linter mechanic card (dark) ---------- */
+  .mechanic {
+    margin-top: 48px;
     border: 1px solid var(--hair); border-radius: 6px;
-    overflow: hidden; margin-top: 56px;
+    padding: 32px 30px 34px;
+    background: rgba(34,26,20,0.55);
     position: relative; z-index: 2;
   }
-  .cov { background: var(--bg); padding: 30px 28px 34px; transition: background .2s; }
-  .w-paper .cov { background: #F9F5EC; }
-  .w-paper .cov:hover { background: #FCF9F2; }
-  .w-dark .cov { background: #1D1612; }
-  .w-dark .cov:hover { background: #221A14; }
-  .cov h3 {
-    font-family: var(--mono); font-size: 14px; font-weight: 700;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--fg); margin-bottom: 10px;
-    display: flex; align-items: baseline; gap: 10px;
+  .mechanic .mech-no {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint);
   }
-  .cov h3::before { content: "▸"; color: var(--acc); font-size: 11px; }
-  .cov p { color: var(--sub); font-size: 15px; line-height: 1.55; }
-  .cov p code { color: var(--sub); }
+  .mechanic .mech-no b { color: var(--acc); margin-right: 8px; }
+  .mechanic h3 {
+    font-family: var(--display); font-weight: 560;
+    font-size: clamp(24px, 2.6vw, 31px);
+    line-height: 1.12; letter-spacing: -0.01em;
+    margin-top: 10px; color: var(--fg);
+  }
+  .mechanic h3 em { font-style: italic; font-weight: 440; color: var(--acc); }
+  .mechanic p { color: var(--sub); font-size: 16.5px; max-width: 64ch; margin-top: 14px; }
+  .mechanic p strong { color: var(--fg); font-weight: 620; }
+
+  /* ---------- coverage line (compact) ---------- */
   .outscope {
     margin-top: 28px;
     font-family: var(--mono); font-size: 13px; line-height: 1.8;
@@ -644,121 +504,58 @@
   }
   .cmp-row > .cmp-dh { background: #241B14; color: var(--sub); }
   .cmp-row > .cmp-dh em { color: var(--acc); font-style: italic; }
-  .cmp-outcomes {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 1px; background: var(--hair);
-    border: 1px solid var(--hair); border-radius: 6px;
-    overflow: hidden; margin-top: 28px;
-    position: relative; z-index: 2;
-  }
   @media (max-width: 880px) {
     .cmp-row { grid-template-columns: 1fr; }
     .cmp-head { display: none; }
     .cmp-row > .cmp-dh::before { content: "hands-on-deck — "; color: var(--acc); font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
-    .cmp-outcomes { grid-template-columns: 1fr; }
   }
 
-  /* ---------- benchmark (dark) ---------- */
-  .bench-duo {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 1px; background: var(--hair);
-    border: 1px solid var(--hair); border-radius: 6px;
-    overflow: hidden; margin-top: 40px;
+  /* ---------- proof block (dark) ---------- */
+  .proof {
+    margin-top: 44px;
+    border-left: 2px solid var(--acc); padding-left: 22px;
     position: relative; z-index: 2;
   }
-  .bd { background: #1D1612; padding: 30px 28px 32px; }
-  .bd .who {
-    font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--faint); margin-bottom: 8px;
-  }
-  .bd h3 {
-    font-family: var(--display);
-    font-size: 22px; font-weight: 600; color: var(--fg);
-    letter-spacing: -0.01em; margin-bottom: 12px;
-  }
-  .bd h3 em { font-style: italic; color: var(--acc); font-weight: 480; }
-  .bd p { color: var(--sub); font-size: 15px; line-height: 1.6; }
-  .bd p strong { color: var(--fg); font-weight: 620; }
-  .bd p code { color: var(--sub); }
-  .bd .stat-line {
-    margin-top: 16px; font-family: var(--mono); font-size: 12.5px;
-    color: var(--faint); line-height: 1.7;
-  }
-  .bd .stat-line b { color: var(--acc); font-weight: 700; }
-  .bm-rounds { margin-top: 40px; border-top: 1px solid var(--hair); position: relative; z-index: 2; }
-  .bm-round {
-    display: grid; grid-template-columns: 170px 1fr;
-    gap: 24px; padding: 22px 4px;
-    border-bottom: 1px solid var(--hair);
-  }
-  .bm-round .r-head { font-family: var(--mono); font-size: 12px; line-height: 1.7; }
-  .bm-round .r-name { color: var(--fg); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-  .bm-round .r-verdict { color: var(--faint); }
-  .bm-round .r-verdict.win { color: var(--acc); }
-  .bm-round .r-body { color: var(--sub); font-size: 14.5px; line-height: 1.6; }
-  .bm-round .r-body strong { color: var(--fg); font-weight: 620; }
-  .bm-round .r-fix {
-    display: block; margin-top: 8px;
-    font-family: var(--mono); font-size: 12.5px; color: var(--acc);
-  }
-  .bm-round .r-fix::before { content: "↳ shipped: "; color: var(--faint); }
-  .bm-kicker {
-    margin-top: 34px; font-size: 17px; line-height: 1.6; color: var(--sub);
-    border-left: 2px solid var(--acc); padding-left: 20px;
-    position: relative; z-index: 2;
-  }
-  .bm-kicker strong { color: var(--fg); }
-  @media (max-width: 880px) {
-    .bench-duo { grid-template-columns: 1fr; }
-    .bm-round { grid-template-columns: 1fr; gap: 8px; }
+  .proof p { color: var(--sub); font-size: 17px; line-height: 1.6; max-width: 62ch; }
+  .proof p strong { color: var(--fg); font-weight: 620; }
+  .proof .thesis {
+    margin-top: 16px;
+    font-family: var(--display); font-style: italic; font-weight: 560;
+    font-size: clamp(21px, 2.4vw, 28px); color: var(--acc);
   }
 
-  /* ---------- provenance (paper) ---------- */
-  .built-stat {
-    margin-top: 40px;
-    border-top: 1px solid var(--acc);
-    border-bottom: 1px solid var(--acc);
-    padding: 18px 4px;
-    font-family: var(--mono); font-size: 13.5px; line-height: 1.9;
-    color: var(--acc); font-weight: 700;
-    position: relative; z-index: 2;
+  /* ---------- install (compact lines) ---------- */
+  .install-lines {
+    margin-top: 44px; display: flex; flex-direction: column; gap: 1px;
+    background: var(--hair); border: 1px solid var(--hair); border-radius: 6px;
+    overflow: hidden; position: relative; z-index: 2;
   }
-  .built-stat .lab {
-    display: block; font-size: 11px; letter-spacing: 0.18em;
-    text-transform: uppercase; color: var(--eyebrow); font-weight: 700;
+  .inst-line {
+    display: grid; grid-template-columns: 180px 1fr; gap: 24px;
+    align-items: center; background: #F9F5EC; padding: 18px 24px;
   }
-
-  /* ---------- install ---------- */
-  .install-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 22px; margin-top: 56px;
-    position: relative; z-index: 2;
-  }
-  .inst {
-    border: 1px solid var(--hair); border-radius: 6px;
-    background: #F9F5EC;
-    padding: 28px 26px 30px;
-    display: flex; flex-direction: column; gap: 14px;
-    transition: border-color .2s, transform .2s;
-  }
-  .inst:hover { border-color: var(--acc); transform: translateY(-3px); }
-  .inst .where {
-    font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: 0.18em;
+  .inst-line .where {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em;
     text-transform: uppercase; color: var(--acc);
   }
-  .inst h3 { font-family: var(--display); font-weight: 560; font-size: 23px; letter-spacing: -0.01em; color: var(--fg); }
-  .inst p { color: var(--sub); font-size: 15px; flex-grow: 1; }
-  .inst .inst-cmd {
+  .inst-line .cmd {
     font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
-    background: var(--card-ink); border: 1px solid var(--card-bd); border-radius: 4px;
-    padding: 12px 14px; color: var(--card-text);
-    overflow-x: auto; white-space: pre;
+    color: var(--sub); overflow-x: auto; white-space: nowrap;
   }
-  .inst .inst-cmd .prompt { color: var(--card-amber); user-select: none; }
-  .inst .inst-cmd .t-dim { color: var(--card-faint); }
+  .inst-line .cmd .prompt { color: var(--acc); user-select: none; }
+  .inst-line .cmd .t-dim { color: var(--faint); }
+  .cov-line {
+    margin-top: 28px;
+    font-family: var(--mono); font-size: 13.5px; line-height: 1.8;
+    color: var(--sub);
+  }
+  .cov-line b { color: var(--acc); font-weight: 700; }
+  @media (max-width: 660px) {
+    .inst-line { grid-template-columns: 1fr; gap: 8px; }
+  }
 
   /* ---------- close (paper) ---------- */
-  .close-pad { padding: clamp(72px, 9vw, 130px) 0 clamp(64px, 8vw, 110px); text-align: center; }
+  .close-pad { padding: clamp(56px, 7vw, 90px) 0 clamp(40px, 5vw, 64px); text-align: center; }
   .close-eyebrow {
     font-family: var(--mono); font-size: 12px; font-weight: 700;
     letter-spacing: 0.22em; text-transform: uppercase; color: var(--eyebrow);
@@ -788,12 +585,7 @@
   .foot-sig { text-align: right; }
   .foot-sig .every { color: var(--fg); }
 
-  /* ---------- reveal ---------- */
-  .js .rv { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s ease; }
-  .js .rv.in { opacity: 1; transform: none; }
   @media (prefers-reduced-motion: reduce) {
-    .rv { opacity: 1; transform: none; transition: none; }
-    .grain { animation: none; }
     html { scroll-behavior: auto; }
   }
 
@@ -802,16 +594,6 @@
     .hero-grid { grid-template-columns: 1fr; gap: 70px; }
     .slide-fig { max-width: 560px; }
     .patch-grid { grid-template-columns: 1fr; gap: 36px; }
-    .prob-grid { grid-template-columns: 1fr; }
-    .prin { grid-template-columns: 1fr; gap: 18px; padding: 44px 0; }
-    .prin-head { position: static; }
-    .cov-grid { grid-template-columns: 1fr 1fr; }
-    .install-grid { grid-template-columns: 1fr; }
-    .ghost-no { display: none; }
-    .gest-row, .gest-head { grid-template-columns: 1fr; gap: 4px; }
-    .gest-row .g-h, .gest-head span:first-child { text-align: left; }
-    .gest-row .g-a, .gest-head span:nth-child(2) { display: none; }
-    .gest-final { text-align: left; }
   }
   @media (max-width: 660px) {
     body { font-size: 17px; }
@@ -820,9 +602,7 @@
     .paths { grid-template-columns: 1fr; }
     .path { border-left: none; border-top: 1px solid var(--hair); }
     .path:first-child { border-top: none; }
-    .cov-grid { grid-template-columns: 1fr; }
     .term pre { font-size: 12px; padding: 18px 16px; }
-    .prin-body .term pre { font-size: 11px; }
     .install-line { font-size: 12.5px; padding: 12px 14px; width: 100%; }
     .foot-sig { text-align: left; }
   }
@@ -830,18 +610,13 @@
 </head>
 <body>
 
-<div class="grain" aria-hidden="true"></div>
-
 <nav class="w-paper">
   <div class="wrap nav-inner">
     <a class="wordmark" href="#"><span class="dollar">$</span>hands-on-deck</a>
     <div class="nav-links">
-      <a href="#problem">the problem</a>
-      <a href="#patch-model">patch model</a>
-      <a href="#cli">the cli</a>
+      <a href="#idea">the idea</a>
       <a href="#html">create from html</a>
       <a href="#versus">vs the pptx skill</a>
-      <a href="#benchmark">the race</a>
       <a href="#install">install</a>
       <a class="nav-gh" href="https://github.com/EveryInc/hands-on-deck">GitHub ↗</a>
     </div>
@@ -860,8 +635,7 @@
         </div>
         <h1 class="title">hands <span class="hand">on</span><br>deck</h1>
         <p class="tagline">Agent-native PowerPoint manipulation.</p>
-        <p class="hero-sub">One CLI — <code>deck.py</code> — lets AI agents inspect, edit, create, and verify <code>.pptx</code> files with the fidelity of a human operator. Works anywhere an agent can run a shell command.</p>
-        <p class="hero-new"><span class="new-flag">new</span><a href="#html">write a slide as HTML, compile it into your deck — the browser measures, deck.py writes →</a></p>
+        <p class="hero-sub"><code>deck.py</code> lets AI agents inspect, edit, create, and verify <code>.pptx</code> files — anywhere an agent can run a shell.<span class="pitch">Agents can already make decks. The trouble is nobody can trust what comes back: <b>fast to generate, slow to trust</b>.</span></p>
         <div class="hero-actions">
           <div class="install-line">
             <span class="prompt">&gt;</span>
@@ -900,46 +674,15 @@
   </div>
 </header>
 
-<!-- ============ § 01 THE PROBLEM · paper ============ -->
-<section id="problem" class="w-paper threaded" style="--txp: 64px; --tx: 128px;">
+<!-- ============ § THE CORE IDEA · dark ============ -->
+<section id="idea" class="w-dark glowed threaded" style="--txp: 64px; --tx: 128px;">
   <div class="wrap sect-pad">
-    <div class="rv sect-head">
-      <div class="ghost-no" aria-hidden="true">01</div>
-      <p class="eyebrow"><span class="secno">§ 01</span>The problem</p>
-      <h2 class="sect">The failure mode wasn't ugliness.<br>It was <em>unreviewable tedium</em>.</h2>
-      <p class="lede">Agents could already produce decks. The trouble was what came back.</p>
-    </div>
-    <div class="prob-grid rv">
-      <div class="prob-copy">
-        <p>Templates <strong>ignored and rebuilt from scratch</strong>. Titles drifting a quarter-inch between slides. Footers missing on some slides and not others. Nothing dramatic — just <strong>a human nudging boxes, slide by slide, for an hour</strong>. Exactly the work the agent was supposed to take away.</p>
-        <p>The fix isn't a better prompt. It's giving the agent <strong>the same gestures a human operator has</strong> — and a way to check its own work before you see it.</p>
-      </div>
-      <div class="chip-stack">
-        <span class="chip-label">found in review — real decks</span>
-        <span class="chip">title x: 0.43" → 0.51" → 0.47" (drifts across slides)</span>
-        <span class="chip">given template: ignored — rebuilt from scratch</span>
-        <span class="chip">footer: missing on 7 slides</span>
-        <span class="chip">body text overflows its box on 11, 14, 19</span>
-        <span class="chip solid">× 23 more slides to review by hand</span>
-      </div>
-    </div>
-    <p class="prob-kicker rv">Fast to generate. <span class="hl">Slow to trust.</span></p>
-  </div>
-</section>
-
-<!-- ============ § 02 WHAT THE AGENT SEES · dark + xml wall ============ -->
-<section id="xml" class="w-dark glowed threaded" style="--txp: 128px; --tx: 48px;">
-  <div class="xmlwall" aria-hidden="true">
-    <pre id="xmlwall-pre"></pre>
-  </div>
-  <div class="wrap sect-pad">
-    <div class="rv sect-head">
-      <div class="ghost-no" aria-hidden="true">02</div>
-      <p class="eyebrow"><span class="secno">§ 02</span>What the agent actually sees</p>
+    <div class="sect-head">
+      <p class="eyebrow"><span class="secno">§ 01</span>The core idea</p>
       <h2 class="sect">A .pptx is a zip of XML.<br>There were <em>two bad ways in</em>.</h2>
-      <p class="lede">You see a slide. The agent gets a ZIP file — one ordinary slide is about <strong>2,000 lines of OOXML</strong> (you're looking at some, behind this text). <strong>hands-on-deck takes a third path.</strong></p>
+      <p class="lede">You see a slide. The agent gets a ZIP file — one ordinary slide is about <strong>2,000 lines of OOXML</strong>. <strong>hands-on-deck takes a third path.</strong></p>
     </div>
-    <div class="paths rv">
+    <div class="paths">
       <div class="path bad">
         <h3>Hand-write OOXML <span class="verdict">fragile</span></h3>
         <p>Unzip, edit <code>slide3.xml</code> raw, rezip. Thousands of tokens on angle brackets; one bad namespace and PowerPoint refuses the file.</p>
@@ -953,21 +696,10 @@
         <p>The agent writes a JSON patch describing intent. The tool validates everything, then executes atomically.</p>
       </div>
     </div>
-    <p class="zip-stat rv">the LLM compiles intent; the tool does the bytes. <b>The LLM never edits XML.</b></p>
-  </div>
-</section>
+    <p class="zip-stat">the LLM compiles intent; the tool does the bytes. <b>The LLM never edits XML.</b></p>
 
-<!-- ============ § 03 THE PATCH MODEL · dark ============ -->
-<section id="patch-model" class="w-dark threaded" style="--txp: 48px; --tx: 140px;">
-  <div class="wrap sect-pad">
-    <div class="rv sect-head">
-      <div class="ghost-no" aria-hidden="true">03</div>
-      <p class="eyebrow"><span class="secno">§ 03</span>The patch model</p>
-      <h2 class="sect">Say <em>what</em> should change.<br>Never touch the XML.</h2>
-      <p class="lede">Operations against named shapes on numbered slides. One file, one apply, one atomic result.</p>
-    </div>
     <div class="patch-grid">
-      <div class="term rv">
+      <div class="term">
         <div class="term-bar">
           <span class="dots"><i></i><i></i><i></i></span>
           <span class="fname">patch.json</span>
@@ -983,7 +715,7 @@
    <span class="j-key">"slide"</span><span class="j-pun">:</span> <span class="j-num">5</span><span class="j-pun">,</span> <span class="j-key">"shape"</span><span class="j-pun">:</span> <span class="j-str">"s31"</span><span class="j-pun">,</span> <span class="j-key">"offset"</span><span class="j-pun">:</span> <span class="j-pun">[</span><span class="j-num">0</span><span class="j-pun">,</span> <span class="j-num">1.2</span><span class="j-pun">],</span> <span class="j-key">"text"</span><span class="j-pun">:</span> <span class="j-pun">[</span><span class="j-str">"Fourth pillar"</span><span class="j-pun">]}</span>
 <span class="j-pun">]}</span></pre>
       </div>
-      <div class="op-notes rv">
+      <div class="op-notes">
         <div class="op-note">
           <h4>replace-text · scope: master</h4>
           <p>Rebrand the whole deck — masters, layouts, every slide — in one op.</p>
@@ -1003,139 +735,25 @@
         <p class="patch-kicker"><b>deck.py deck.pptx apply patch.json --fix --render img/</b><br>— validated first, applied atomically, linted after.</p>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- ============ § 04 THE FRAMING · paper · gesture map ============ -->
-<section id="cli" class="w-paper vignette threaded" style="--txp: 140px; --tx: 80px;">
-  <div class="wrap sect-pad">
-    <div class="rv sect-head">
-      <div class="ghost-no" aria-hidden="true">04</div>
-      <p class="eyebrow"><span class="secno">§ 04</span>The framing</p>
-      <h2 class="sect">We built PowerPoint. <em>As a CLI.</em></h2>
-      <p class="lede">Every gesture a human makes inside PowerPoint, as a command.</p>
-    </div>
-    <div class="gest rv">
-      <div class="gest-head"><span>your gesture</span><span></span><span>its gesture</span></div>
-      <div class="gest-row">
-        <div class="g-h">click a box and type</div><div class="g-a">→</div>
-        <div class="g-c">apply <span class="dim">{"op":</span><b>"set-text"</b><span class="dim">, …}</span></div>
-      </div>
-      <div class="gest-row">
-        <div class="g-h">drag a shape</div><div class="g-a">→</div>
-        <div class="g-c">apply <span class="dim">{"op":</span><b>"move"</b><span class="dim">, …}</span></div>
-      </div>
-      <div class="gest-row">
-        <div class="g-h">bold one word</div><div class="g-a">→</div>
-        <div class="g-c"><b>set-text</b> <span class="dim">"runs":[…]</span></div>
-      </div>
-      <div class="gest-row">
-        <div class="g-h">look at the slide</div><div class="g-a">→</div>
-        <div class="g-c"><b>render</b> <span class="dim">--slide 9 --crop</span></div>
-      </div>
-      <div class="gest-row">
-        <div class="g-h">undo</div><div class="g-a">→</div>
-        <div class="g-c"><span class="dim">patches are atomic;</span> <b>diff</b> <span class="dim">to verify</span></div>
-      </div>
-      <div class="gest-row">
-        <div class="g-h">spot something’s off</div><div class="g-a">→</div>
-        <div class="g-c"><b>inspect</b> <span class="dim">--issues (it lints itself)</span></div>
-      </div>
-      <div class="gest-final">every gesture you have, it now has.</div>
-    </div>
-    <p class="gest-kicker rv">Not a converter. Not a script. <span class="hl">The application itself</span>.</p>
-  </div>
-</section>
-
-<!-- ============ § 05 THE MACHINERY · dark ============ -->
-<section id="principles" class="w-dark glowed threaded" style="--txp: 80px; --tx: 56px;">
-  <div class="wrap sect-pad">
-    <div class="rv sect-head">
-      <div class="ghost-no" aria-hidden="true">05</div>
-      <p class="eyebrow"><span class="secno">§ 05</span>The differentiator</p>
-      <h2 class="sect">Built around how agents <em>actually fail</em></h2>
-      <p class="lede"><strong>Every design choice targets a known LLM failure mode.</strong></p>
-    </div>
-
-    <div class="principles">
-
-      <div class="prin rv">
-        <div class="prin-head">
-          <p class="prin-no"><b>/</b>failure mode: hallucinated references</p>
-          <h3>Errors <em>teach</em> instead of scold</h3>
-        </div>
-        <div class="prin-body">
-          <p>Agents guess shape ids. A bad reference returns the slide's <strong>real shape inventory</strong> — the agent self-corrects from the error message alone.</p>
-          <div class="term">
-            <div class="term-bar">
-              <span class="dots"><i></i><i></i><i></i></span>
-              <span class="fname">deck.py deck.pptx apply patch.json</span>
-            </div>
-            <pre><span class="t-red">PATCH REJECTED</span> <span class="t-dim">—</span> <span class="t-cream">2 validation error(s), nothing was modified:</span>
-  <span class="t-dim">-</span> op[0] set-text: shape <span class="t-amber">'s9999'</span> not found on slide 0.
-<span class="t-cream">shapes on slide 0:</span>
-  <span class="t-amber">s16</span>    <span class="t-cream">PICTURE</span>      <span class="t-dim">[-1.25,-0.91 15.0x8.44in]</span>  (image image3.png)
-  <span class="t-amber">s18</span>    <span class="t-cream">AUTO_SHAPE</span>   <span class="t-dim">[7.00,5.17 2.6x0.25in]</span>  Session Management
-  <span class="t-amber">s19</span>    <span class="t-cream">TEXT_BOX</span>     <span class="t-dim">[0.60,1.00 4.0x0.4in]</span>  USING CLAUDE CODE</pre>
-          </div>
-        </div>
-      </div>
-
-      <div class="prin rv">
-        <div class="prin-head">
-          <p class="prin-no"><b>/</b>failure mode: cascading partial state</p>
-          <h3>All errors at once, <em>atomically</em></h3>
-        </div>
-        <div class="prin-body">
-          <p>Nine mistakes → <strong>nine errors, zero bytes written</strong>. Never a half-applied patch; the agent repairs everything in one pass.</p>
-        </div>
-      </div>
-
-      <div class="prin rv">
-        <div class="prin-head">
-          <p class="prin-no"><b>/</b>failure mode: no spatial sense</p>
-          <h3>The linter watches the agent's <em>hands</em></h3>
-        </div>
-        <div class="prin-body">
-          <p>Agents can't feel overflow or collision. After every apply, the linter reports <strong>only what the patch broke</strong> — exact inches, exact fix command, no noise about pre-existing quirks.</p>
-        </div>
-      </div>
-
-      <div class="prin rv">
-        <div class="prin-head">
-          <p class="prin-no"><b>/</b>failure mode: agreeable overconfidence</p>
-          <h3>Repair is <em>honest</em></h3>
-        </div>
-        <div class="prin-body">
-          <p><code>fix</code> re-measures after repairing. Anything still broken is reported as <strong>residue — never claimed as fixed</strong>.</p>
-        </div>
-      </div>
-
-      <div class="prin rv">
-        <div class="prin-head">
-          <p class="prin-no"><b>/</b>failure mode: blind editing</p>
-          <h3>Verification is <em>visual</em></h3>
-        </div>
-        <div class="prin-body">
-          <p>Render, <strong>crop, and zoom any region</strong>. The agent looks at its work the way you would — before you have to.</p>
-        </div>
-      </div>
-
+    <div class="mechanic">
+      <p class="mech-no"><b>/</b>failure mode: no spatial sense</p>
+      <h3>The linter watches the agent's <em>hands</em></h3>
+      <p>Agents can't feel overflow or collision. After every apply, the linter reports <strong>only what the patch broke</strong> — exact inches, exact fix command, no noise about pre-existing quirks.</p>
     </div>
   </div>
 </section>
 
-<!-- ============ § 06 THE CREATE PATH · dark ============ -->
-<section id="html" class="w-dark threaded" style="--txp: 56px; --tx: 124px;">
+<!-- ============ § CREATE FROM HTML · dark ============ -->
+<section id="html" class="w-dark threaded" style="--txp: 128px; --tx: 48px;">
   <div class="wrap sect-pad">
-    <div class="rv sect-head">
-      <div class="ghost-no" aria-hidden="true">06</div>
-      <p class="eyebrow"><span class="secno">§ 06</span>The create path · <span class="new-flag">new</span></p>
+    <div class="sect-head">
+      <p class="eyebrow"><span class="secno">§ 02</span>The create path · <span class="new-flag">new</span></p>
       <h2 class="sect">Write the slide as a <em>webpage</em>.<br>Ship it as a slide.</h2>
-      <p class="lede">HTML/CSS is the layout language agents are most fluent in. <code>html2patch</code> renders your slide in a headless browser and compiles every measured box into an ordinary deck.py patch. <strong>The browser measures. deck.py stays the only writer.</strong></p>
+      <p class="lede">HTML/CSS is the layout language agents know best. <code>html2patch</code> renders your slide in a headless browser and compiles every measured box into a deck.py patch. <strong>The browser measures; deck.py stays the only writer.</strong></p>
     </div>
     <div class="patch-grid">
-      <div class="term rv">
+      <div class="term">
         <div class="term-bar">
           <span class="dots"><i></i><i></i><i></i></span>
           <span class="fname">slide.html → patch.json → deck.pptx</span>
@@ -1149,7 +767,7 @@
 <span class="t-dim">$</span> <span class="t-cream">python deck.py deck.pptx apply patch.json --render img/</span>
 <span class="t-ok">  ✓ applied atomically · linted · rendered for your own eyes</span></pre>
       </div>
-      <div class="op-notes rv">
+      <div class="op-notes">
         <div class="op-note">
           <h4>One writer</h4>
           <p>A compiled slide is born with the same shape ids, lints, and <code>diff</code> as every edit — nudge one box seconds after creating it.</p>
@@ -1158,79 +776,25 @@
           <h4>Creates <em>into</em> your template</h4>
           <p><code>add-slide</code> onto your branded master's layouts. Free-form design <strong>inside your own deck</strong> — the thing generate-a-new-file architectures can't do.</p>
         </div>
-        <div class="op-note">
-          <h4>Drift is caught, not hoped away</h4>
-          <p>Browsers and PowerPoint wrap text differently. The post-apply linter re-measures the <em>real</em> deck and reports any overflow with the exact fix.</p>
-        </div>
-        <div class="op-note">
-          <h4>Compiled, not approximated</h4>
-          <p>CSS gradients become native fills, tables keep per-cell fills and column widths, <code>object-fit: cover</code> becomes a true crop.</p>
-        </div>
-        <p class="patch-kicker">raced the best-known HTML→PPTX engine on <b>its own</b> constraint set: closer to the browser's render — and where it silently dropped a whole table, <b>hands-on-deck carried it</b>.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============ § 07 WHAT'S IN THE BOX · paper ============ -->
-<section id="coverage" class="w-paper threaded" style="--txp: 124px; --tx: 96px;">
+<!-- ============ § VS ANTHROPIC + PROOF · dark ============ -->
+<section id="versus" class="w-dark glowed threaded" style="--txp: 48px; --tx: 120px;">
   <div class="wrap sect-pad">
-    <div class="rv sect-head">
-      <div class="ghost-no" aria-hidden="true">07</div>
-      <p class="eyebrow"><span class="secno">§ 07</span>Coverage</p>
-      <h2 class="sect">What's <em>in the box</em></h2>
-      <p class="lede">The whole lifecycle of a deck — through one validated pipeline.</p>
-    </div>
-    <div class="cov-grid rv">
-      <div class="cov">
-        <h3>Read</h3>
-        <p>Slides, shapes, geometry, formatting runs, notes — structured output an agent can reason over.</p>
-      </div>
-      <div class="cov">
-        <h3>Edit</h3>
-        <p>Text, images, position, fills, hyperlinks, backgrounds, transitions, theme colors, metadata — one validated pipeline.</p>
-      </div>
-      <div class="cov">
-        <h3>Create</h3>
-        <p>New slides from your template's layouts, shapes cloned from styled ones, or HTML compiled in.</p>
-      </div>
-      <div class="cov">
-        <h3>Structure</h3>
-        <p>Add, delete, reorder, duplicate slides; merge decks; table rows and columns; masters and layouts.</p>
-      </div>
-      <div class="cov">
-        <h3>Verify</h3>
-        <p>Render, crop, zoom, lint, diff. Trust is earned per edit.</p>
-      </div>
-      <div class="cov">
-        <h3>Escape hatch</h3>
-        <p>Raw OOXML when the patch model can't express it — with the tooling still validating.</p>
-      </div>
-    </div>
-    <p class="outscope rv"><b>Out of scope, honestly:</b> native chart objects and shape animations. hands-on-deck does the 95% that real decks are actually made of, and says so.</p>
-  </div>
-</section>
-
-<!-- ============ § 08 THE COMPARISON · dark ============ -->
-<section id="versus" class="w-dark glowed threaded" style="--txp: 96px; --tx: 44px;">
-  <div class="wrap sect-pad">
-    <div class="rv sect-head">
-      <div class="ghost-no" aria-hidden="true">08</div>
-      <p class="eyebrow"><span class="secno">§ 08</span>The comparison</p>
+    <div class="sect-head">
+      <p class="eyebrow"><span class="secno">§ 03</span>The comparison</p>
       <h2 class="sect">Same job. <em>Different machinery.</em></h2>
-      <p class="lede">Anthropic's pptx skill is genuinely good in parts — but its guardrails are <em>advice to the model</em>. hands-on-deck's are <strong>machinery in the tool</strong>, and advice gets ignored on exactly the slide that matters. We didn't leave that as an opinion — <a href="#benchmark">we raced them — § 09</a>.</p>
+      <p class="lede">Anthropic's pptx skill puts its guardrails in <em>advice to the model</em> — ignored on exactly the slide that matters. Ours are <strong>machinery in the tool</strong>.</p>
     </div>
 
-    <div class="cmp rv">
+    <div class="cmp">
       <div class="cmp-row cmp-head">
         <div>the moment</div>
         <div>Anthropic's pptx skill</div>
         <div class="cmp-dh">hands-on-deck</div>
-      </div>
-      <div class="cmp-row">
-        <div class="cmp-m">Read the deck</div>
-        <div>markitdown text dump; thumbnails for picking layouts. Geometry and formatting live in the raw XML.</div>
-        <div class="cmp-dh">Full inventory — ids, geometry in inches, formatting runs, image names, detected issues. <code>--brief</code>: one line per shape.</div>
       </div>
       <div class="cmp-row">
         <div class="cmp-m">Make an edit</div>
@@ -1243,154 +807,53 @@
         <div class="cmp-dh">Patch rejected <em>before a byte is written</em> — every error at once, with the slide's real shape inventory in the message. The agent repairs in one pass.</div>
       </div>
       <div class="cmp-row">
-        <div class="cmp-m">Text overflows its box</div>
-        <div>Nothing notices. The deck ships with the overflow.</div>
-        <div class="cmp-dh">The linter reports it in inches with the exact fix command — and after repair, anything still broken is reported as residue, never claimed fixed.</div>
-      </div>
-      <div class="cmp-row">
-        <div class="cmp-m">Create from scratch</div>
-        <div>Write PptxGenJS code. The output is a new file on a blank theme — your template's brand isn't in the room.</div>
-        <div class="cmp-dh">Write the slide as HTML; <code>html2patch</code> compiles it into ordinary ops — straight into your branded template's layouts.</div>
-      </div>
-      <div class="cmp-row">
         <div class="cmp-m">Who owns it</div>
         <div>Proprietary license — no derivative works, no redistribution.</div>
         <div class="cmp-dh">MIT. Fork it, extend it, ship it inside your own product, run it on any model, any platform.</div>
       </div>
     </div>
+
+    <div class="proof">
+      <p>We raced Anthropic's skill — <strong>same brief, model, and budget, judged blind by three judges</strong>. Every finding shipped as a release (v2.2.0 → v2.3.0): a lint, a fix, an op — and that failure class never recurred.</p>
+      <p class="thesis">Tools learn; prompts don't.</p>
+    </div>
   </div>
 </section>
 
-<!-- ============ § 09 THE RACE · dark ============ -->
-<section id="benchmark" class="w-dark threaded" style="--txp: 44px; --tx: 132px;">
+<!-- ============ § CLOSE + INSTALL · paper ============ -->
+<section id="install" class="w-paper vignette threaded" style="--txp: 120px; --tx: 72px;">
   <div class="wrap sect-pad">
-    <div class="rv sect-head">
-      <div class="ghost-no" aria-hidden="true">09</div>
-      <p class="eyebrow"><span class="secno">§ 09</span>The benchmark</p>
-      <h2 class="sect">So we made them <em>race</em></h2>
-      <p class="lede">Same brief, same model, same budget — one agent on hands-on-deck, one on Anthropic's pptx skill. Three create rounds and one heavy edit, each judged <strong>blind</strong> by three independent judges. Every finding shipped as a release — most within hours.</p>
+    <div class="close-pad" style="padding-top: 0;">
+      <p class="close-eyebrow">the close</p>
+      <h2 class="close-line">Go make your agent its <em>own</em> PowerPoint.</h2>
     </div>
 
-    <div class="bench-duo rv">
-      <div class="bd">
-        <div class="who">the agent on hands-on-deck</div>
-        <h3>works like a <em>designer</em></h3>
-        <p>Write a slide, compile it in, render, <strong>look at it</strong>, patch what's wrong, look again. One run: <strong>27 separate looks at its own renders</strong>; every fix a two-line op, never a rebuild.</p>
-        <p class="stat-line">per-slide loop · <b>renders inspected: 27</b> · fixes: surgical ops</p>
-      </div>
-      <div class="bd">
-        <div class="who">the agent on the pptx skill</div>
-        <h3>works like a <em>coder</em></h3>
-        <p>One 40KB <code>build.js</code>, written nearly blind, run once, thumbnails at the end. Every fix means editing the program and regenerating — and what the thumbnails miss, ships.</p>
-        <p class="stat-line">single build script · <b>writes: 2</b> · fixes: edit + regenerate</p>
-      </div>
-    </div>
-
-    <div class="bm-rounds rv">
-      <div class="bm-round">
-        <div class="r-head">
-          <div class="r-name">Round 1 · create</div>
-          <div class="r-verdict">finding: one overridden lint flag</div>
-        </div>
-        <div class="r-body">
-          Sharpest catch: <strong>one clipped headline</strong> — the linter had flagged it; the agent overrode the flag without zooming in.
-          <span class="r-fix">v2.2.0 — covered_by lint, wider serif margins, and a rule: no flag dismissed without a <code>render --crop</code> zoom</span>
-        </div>
-      </div>
-      <div class="bm-round">
-        <div class="r-head">
-          <div class="r-name">Round 2 · create</div>
-          <div class="r-verdict">judges: "near-flawless mechanics"</div>
-        </div>
-        <div class="r-body">
-          Zero layout defects — the round-1 failure class was extinct. Only catch: <code>&lt;br&gt;</code> in a table cell compiled to nothing — <strong>"Who decideswhat runs next."</strong>
-          <span class="r-fix">v2.2.1 — <code>&lt;br&gt;</code> survives as a real line break, with a regression test</span>
-        </div>
-      </div>
-      <div class="bm-round">
-        <div class="r-head">
-          <div class="r-name">Round 3 · create</div>
-          <div class="r-verdict win">judges: 2–1 hands-on-deck, two CLEAR verdicts</div>
-        </div>
-        <div class="r-body">
-          No overflows, no collisions, "airtight" typography — won on exactly the dimension round 1 slipped on. The pptx-skill deck repeated its round-1 and -2 failure modes.
-        </div>
-      </div>
-      <div class="bm-round">
-        <div class="r-head">
-          <div class="r-name">Round 4 · edit</div>
-          <div class="r-verdict win">forensic audit: "the cleaner edit by the strict letter" — grade A</div>
-        </div>
-        <div class="r-body">
-          Full re-theme + slide insert: <strong>zero collateral damage</strong>, recolored down to the macOS traffic-light dots. The finding: deck.py had no color op.
-          <span class="r-fix">v2.3.0 — <code>replace-color</code>: a re-theme is a handful of declarative ops in one atomic patch</span>
-        </div>
-      </div>
-    </div>
-
-    <p class="bm-kicker rv"><strong>Every finding became machinery</strong> — a lint, a fix, an op — and that failure class never recurred. <strong>Tools learn; prompts don't.</strong> That's the bet this whole project is built on.</p>
-  </div>
-</section>
-
-<!-- ============ § 10 PROVENANCE · paper ============ -->
-<section id="story" class="w-paper vignette threaded" style="--txp: 132px; --tx: 72px;">
-  <div class="wrap sect-pad">
-    <div class="rv sect-head">
-      <div class="ghost-no" aria-hidden="true">10</div>
-      <p class="eyebrow"><span class="secno">§ 10</span>Provenance</p>
-      <h2 class="sect">We use this <em>every week</em></h2>
-      <p class="lede">Not a demo — we built it to make <strong>our own decks</strong>. Every training <a href="https://every.to/consulting">Every Consulting</a> runs ships with a branded deck our agents build with hands-on-deck. <strong>Hundreds of decks with Claude</strong> later, every way an agent fumbled became a design decision. The failure-mode list above isn't theory; <strong>it's field notes</strong>.</p>
-    </div>
-    <div class="built-stat rv">
-      <span class="lab">even the deck we present this tool with was built by the tool</span>
-      626 patch ops · 22,372 lines of XML written · 24 render-lint-fix cycles · 0 lines written by a human
-    </div>
-    <div class="hero-actions rv" style="margin-top:34px;">
-      <a class="btn-gh" href="https://every.to/consulting">Work with Every Consulting ↗</a>
-    </div>
-    <p class="patch-kicker rv" style="margin-top:22px;">decks were one workflow. <b>automating your team's work is literally what we do.</b></p>
-  </div>
-</section>
-
-<!-- ============ § 11 INSTALL · paper ============ -->
-<section id="install" class="w-paper threaded" style="--txp: 72px; --tx: 110px;">
-  <div class="wrap sect-pad">
-    <div class="rv sect-head">
-      <div class="ghost-no" aria-hidden="true">11</div>
-      <p class="eyebrow"><span class="secno">§ 11</span>Install</p>
+    <div class="sect-head" style="padding-top: 0;">
+      <p class="eyebrow"><span class="secno">§ 04</span>Install</p>
       <h2 class="sect">Three ways in. <em>Pick yours.</em></h2>
       <p class="lede">Packaged as an Agent Skill — underneath it's just a CLI.</p>
     </div>
-    <div class="install-grid rv">
-      <div class="inst">
-        <p class="where">Claude Code</p>
-        <h3>One command</h3>
-        <div class="inst-cmd"><span class="prompt">&gt;</span> /plugin marketplace add EveryInc/hands-on-deck<br><span class="prompt">&gt;</span> /plugin install hands-on-deck@hands-on-deck</div>
+    <div class="install-lines">
+      <div class="inst-line">
+        <span class="where">Claude Code</span>
+        <span class="cmd"><span class="prompt">&gt;</span> /plugin marketplace add EveryInc/hands-on-deck &nbsp;<span class="t-dim">→</span>&nbsp; <span class="prompt">&gt;</span> /plugin install hands-on-deck@hands-on-deck</span>
       </div>
-      <div class="inst">
-        <p class="where">claude.ai</p>
-        <h3>Upload the skill</h3>
-        <div class="inst-cmd"><span class="prompt">$</span> zip -r hands-on-deck.zip skills/hands-on-deck<br><span class="t-dim"># then upload in Settings → Capabilities</span></div>
+      <div class="inst-line">
+        <span class="where">claude.ai</span>
+        <span class="cmd"><span class="prompt">$</span> zip -r hands-on-deck.zip skills/hands-on-deck &nbsp;<span class="t-dim"># upload in Settings → Capabilities</span></span>
       </div>
-      <div class="inst">
-        <p class="where">Any agent</p>
-        <h3>It's just a CLI</h3>
-        <div class="inst-cmd"><span class="prompt">$</span> git clone https://github.com/EveryInc/hands-on-deck<br><span class="prompt">$</span> python hands-on-deck/skills/hands-on-deck/scripts/deck.py docs</div>
+      <div class="inst-line">
+        <span class="where">Any CLI</span>
+        <span class="cmd"><span class="prompt">$</span> git clone https://github.com/EveryInc/hands-on-deck &nbsp;<span class="t-dim">→</span>&nbsp; <span class="prompt">$</span> python …/deck.py docs</span>
       </div>
     </div>
+    <p class="cov-line">Covers <b>read, edit, create, restructure, verify</b> — plus a raw-OOXML escape hatch.</p>
+    <p class="outscope"><b>Out of scope, honestly:</b> native charts, animations, embedded video, merged cells. hands-on-deck does the 95% that real decks are actually made of, and says so.</p>
+    <p class="close-repo"><a href="https://github.com/EveryInc/hands-on-deck">github.com/EveryInc/hands-on-deck</a></p>
   </div>
 </section>
 
-<!-- ============ CLOSE · paper ============ -->
-<section id="close" class="w-paper vignette threaded" style="--txp: 110px; --tx: 64px;">
-  <div class="wrap close-pad">
-    <p class="close-eyebrow rv">the close</p>
-    <h2 class="close-line rv">Go make your agent its <em>own</em> PowerPoint.</h2>
-    <p class="close-repo rv"><a href="https://github.com/EveryInc/hands-on-deck">github.com/EveryInc/hands-on-deck</a></p>
-  </div>
-</section>
-
-<footer class="w-paper">
+<footer class="w-paper threaded" style="--txp: 72px; --tx: 64px;">
   <div class="wrap foot-inner">
     <div>
       <span style="color:#915C0D;">$</span> hands-on-deck — MIT license<br>
@@ -1398,7 +861,7 @@
     </div>
     <div class="foot-sig">
       built by <a class="every" href="https://every.to/consulting">Every Consulting</a><br>
-      battle-tested on hundreds of real decks
+      battle-tested on real decks
     </div>
   </div>
 </footer>
@@ -1419,26 +882,6 @@
       });
     });
   });
-
-  // scroll reveal
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-    });
-  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-  document.querySelectorAll(".rv").forEach(function (el) { io.observe(el); });
-
-  // the XML wall — § 02's background is real OOXML, repeated to fill
-  (function () {
-    var chunk =
-'<p:sp>\n  <p:nvSpPr>\n    <p:cNvPr id="12" name="s12"/>\n    <p:cNvSpPr txBox="1"/>\n    <p:nvPr/>\n  </p:nvSpPr>\n  <p:spPr>\n    <a:xfrm><a:off x="838200" y="365125"/>\n    <a:ext cx="7772400" cy="1325563"/></a:xfrm>\n    <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>\n    <a:noFill/>\n  </p:spPr>\n  <p:txBody>\n    <a:bodyPr wrap="square" rtlCol="0" anchor="t">\n      <a:normAutofit/>\n    </a:bodyPr>\n    <a:lstStyle/>\n    <a:p>\n      <a:pPr algn="l"/>\n      <a:r>\n        <a:rPr lang="en-US" sz="3200" b="1" dirty="0">\n          <a:solidFill><a:srgbClr val="1C1612"/></a:solidFill>\n          <a:latin typeface="Fraunces"/>\n        </a:rPr>\n        <a:t>Q3 results</a:t>\n      </a:r>\n    </a:p>\n  </p:txBody>\n</p:sp>\n<p:pic>\n  <p:nvPicPr>\n    <p:cNvPr id="9" name="s9" descr="chart"/>\n    <p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr>\n  </p:nvPicPr>\n  <p:blipFill>\n    <a:blip r:embed="rId3"/>\n    <a:srcRect l="8333" r="8333"/>\n    <a:stretch><a:fillRect/></a:stretch>\n  </p:blipFill>\n  <p:spPr>\n    <a:xfrm><a:off x="7556500" y="2641600"/>\n    <a:ext cx="4445000" cy="3175000"/></a:xfrm>\n  </p:spPr>\n</p:pic>\n';
-    var pre = document.getElementById("xmlwall-pre");
-    if (pre) {
-      var s = "";
-      for (var i = 0; i < 14; i++) s += chunk;
-      pre.textContent = s;
-    }
-  })();
 </script>
 
 </body>

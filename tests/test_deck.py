@@ -708,3 +708,34 @@ def test_alignment_rides_apply_lint_when_newly_introduced(tmp_path):
     r = apply_patch(p, [{"op": "resize", "slide": 0, "shape": sid, "size": [3.86, 0.5]}], out)
     assert r.returncode == 0, r.stderr
     assert "alignment near-miss" in r.stdout and "right edge" in r.stdout
+
+
+@pytest.fixture
+def movie(tmp_path):
+    # No codec needed — add_movie embeds bytes verbatim; we test the op, not
+    # playback. (Matches the file's "no binary fixtures" rule: built inline.)
+    p = tmp_path / "clip.mp4"
+    p.write_bytes(b"\x00\x00\x00\x18ftypmp42\x00\x00\x00\x00fake-movie-bytes")
+    return p
+
+
+def test_add_movie_embeds_local_video(deck, tmp_path, movie, img):
+    out = tmp_path / "withvideo.pptx"
+    r = apply_patch(deck, [
+        {"op": "add-movie", "slide": 0, "movie": str(movie),
+         "at": [1, 2], "size": [4, 2.25], "poster": str(img)},
+    ], out)
+    assert r.returncode == 0, r.stdout + r.stderr
+    names = zipfile.ZipFile(out).namelist()
+    assert any(n.startswith("ppt/media/") and n.endswith(".mp4") for n in names), names
+
+
+def test_add_movie_validation_rejects_bad_ops(deck, tmp_path):
+    # missing "size" AND a nonexistent movie -> atomic reject, error names both
+    out = tmp_path / "x.pptx"
+    r = apply_patch(deck, [
+        {"op": "add-movie", "slide": 0, "movie": "/no/such/clip.mp4", "at": [1, 2]},
+    ], out)
+    assert r.returncode != 0
+    blob = r.stdout + r.stderr
+    assert "movie not found" in blob and "size" in blob

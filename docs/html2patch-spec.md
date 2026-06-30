@@ -63,11 +63,17 @@ elements are emitted and (except BOX) their subtrees are not descended further.
    `src` must resolve to a local file (file:// or relative to the HTML file);
    `data:` URIs are materialized to temp files. Remote http(s) sources are an error
    (agents should download first — keeps the tool offline and deterministic).
-2. **TABLE** — `<table>` → `add-table` at its rect with `rows` of plain cell text,
+2. **VIDEO** — `<video>` → `add-movie` at its rect with exact `size`. A LOCAL or
+   `data:` `src` is embedded and `poster` becomes the still frame. A REMOTE / Google
+   Drive `src` cannot be embedded — a `.pptx` video does NOT survive import into
+   Google Slides as a native Slides video — so html2patch warns and places the
+   `poster` (layout preserved); insert the real video downstream via PowerPoint or
+   the Google Slides API (`createVideo`, source DRIVE).
+3. **TABLE** — `<table>` → `add-table` at its rect with `rows` of plain cell text,
    followed by `set-text` ops (`"cell":[r,c]`) for cells whose resolved style
    differs from the table default. Column widths/row heights: v1 uses PowerPoint's
    even split; cell geometry fidelity is out of scope for v1.
-3. **TEXT BLOCK** — `<p>`, `<h1>`–`<h6>` → one `add-shape kind=textbox` per block.
+4. **TEXT BLOCK** — `<p>`, `<h1>`–`<h6>` → one `add-shape kind=textbox` per block.
    A `<ul>`/`<ol>` is ONE textbox; each `<li>` is a paragraph with `bullet:true`
    (nested lists → `level` = nesting depth). Box = border-box rect; CSS padding maps
    to textbox `insets`. See "Text model" below.

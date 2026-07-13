@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>hands-on-deck — agent-native PowerPoint manipulation</title>
-<meta name="description" content="One CLI lets AI agents inspect, edit, create, and verify .pptx files. MIT licensed, built by Every Consulting.">
+<title>hands-on-deck — the PowerPoint app for AI agents</title>
+<meta name="description" content="PowerPoint, Keynote, Google Slides — and now one for AI agents. hands-on-deck lets any AI agent edit, create, and check slide decks without wrecking them. MIT licensed, by Every Consulting.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
 <style>
   /* ============================================================
-     Two worlds. Humans speak on paper; the agent works in the dark.
-     The amber thread crosses between them — that's the thesis.
+     Two worlds. Paper is where humans work; dark is where the
+     agent works. The amber thread crosses between them — because
+     hands-on-deck is the crossing.
      ============================================================ */
   :root {
     --maxw: 1120px;
     --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     --display: "Fraunces", Georgia, serif;
-    /* card interiors are dark in BOTH worlds */
     --card-ink:    #171310;
     --card-lift:   #221A14;
     --card-text:   #C9BDA6;
@@ -32,7 +32,7 @@
     --fg:      #1C1612;
     --sub:     #5C544A;
     --faint:   #8A8073;
-    --acc:     #915C0D;   /* never #E8A33D directly on paper */
+    --acc:     #915C0D;
     --eyebrow: #7A6E5E;
     --ghost:   #E8DDC9;
     --hair:    #E3D9C6;
@@ -77,11 +77,7 @@
 
   .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 28px; position: relative; z-index: 2; }
 
-  /* ---------- the amber thread ----------
-     A 1pt line runs the full page. Each section carries it at its own
-     x (--tx, offset from the right edge); a horizontal jog connects the
-     previous section's x (--txp) to this one. Paper carries #915C0D,
-     dark carries #E8A33D — it changes tone at every world crossing. */
+  /* ---------- the amber thread ---------- */
   section, header.hero, footer { position: relative; }
   .threaded::before {
     content: ""; position: absolute; z-index: 1;
@@ -152,13 +148,6 @@
   a { color: var(--acc); text-decoration: none; }
   a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
-  .new-flag {
-    display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700;
-    letter-spacing: .14em; text-transform: uppercase; color: #F6F1E7;
-    background: var(--acc); border-radius: 3px; padding: 2px 7px 1px;
-    vertical-align: 2px;
-  }
-
   /* ---------- nav (paper) ---------- */
   nav { border-bottom: 1px solid var(--hair); position: relative; z-index: 10; }
   .nav-inner {
@@ -179,29 +168,25 @@
   .nav-gh:hover { border-color: var(--acc); color: var(--acc) !important; }
 
   /* ---------- hero (paper) ---------- */
-  .hero-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    gap: 60px;
-    align-items: center;
-    padding: clamp(64px, 9vw, 120px) 0 clamp(56px, 7vw, 96px);
-  }
+  .hero-pad { padding: clamp(60px, 8vw, 110px) 0 clamp(52px, 6vw, 84px); }
   .hero-meta {
     font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em;
     text-transform: uppercase; color: var(--faint);
     display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+    justify-content: center;
   }
-  .hero-meta .dot { color: var(--hair); }
+  .hero-meta .dot { color: var(--card-bd); }
   .hero-meta .mit { color: var(--acc); font-weight: 700; }
 
   h1.title {
     font-family: var(--display);
     font-weight: 640;
-    font-size: clamp(64px, 11vw, 140px);
+    font-size: clamp(58px, 9.5vw, 124px);
     line-height: 0.94;
     letter-spacing: -0.03em;
     margin: 26px 0 0;
     color: var(--fg);
+    text-align: center;
   }
   h1.title .hand { font-style: italic; font-weight: 420; color: var(--acc); letter-spacing: -0.02em; }
 
@@ -209,31 +194,26 @@
     font-family: var(--display);
     font-weight: 420;
     font-style: italic;
-    font-size: clamp(21px, 2.6vw, 29px);
+    font-size: clamp(22px, 2.8vw, 31px);
     color: var(--sub);
-    margin-top: 20px;
+    margin: 20px auto 0;
     letter-spacing: -0.01em;
+    text-align: center;
+    max-width: 30ch;
   }
+  .tagline b { color: var(--fg); font-weight: 640; font-style: italic; }
 
   .hero-sub {
     color: var(--sub);
-    max-width: 52ch;
-    margin-top: 18px;
-    font-size: 17px;
+    max-width: 62ch;
+    margin: 20px auto 0;
+    font-size: 17.5px;
+    text-align: center;
   }
-  .hero-sub code {
-    font-family: var(--mono); font-size: 0.85em;
-    color: var(--fg);
-    border: 1px solid var(--hair);
-    padding: 1px 6px; border-radius: 3px;
-  }
-  .hero-sub .pitch { display: block; margin-top: 14px; font-style: italic; color: var(--faint); }
-  .hero-sub .pitch b { color: var(--sub); font-weight: 620; font-style: normal; }
+  .hero-sub strong { color: var(--fg); font-weight: 620; }
 
-  .hero-grid > *, .patch-grid > *, .install-grid > *, .cov-grid > *, .paths > * { min-width: 0; }
-  .hero-actions { margin-top: 38px; display: flex; gap: 16px; flex-wrap: wrap; align-items: stretch; max-width: 100%; }
+  .hero-actions { margin-top: 36px; display: flex; gap: 16px; flex-wrap: wrap; align-items: stretch; justify-content: center; }
 
-  /* the install line is a terminal — terminals stay dark on paper */
   .install-line {
     display: flex; align-items: center; gap: 14px;
     font-family: var(--mono); font-size: 14px;
@@ -258,7 +238,7 @@
   .copy-btn:hover { color: var(--card-amber); border-color: var(--card-amber); }
   .copy-btn.copied { color: #F6F1E7; border-color: var(--card-amber); background: rgba(232,163,61,.15); }
 
-  .btn-gh {
+  .btn-gh, .btn-demo {
     display: inline-flex; align-items: center; gap: 10px;
     font-family: var(--mono); font-size: 14px;
     border: 1px solid var(--acc);
@@ -267,86 +247,182 @@
     padding: 13px 22px;
     transition: all .15s;
   }
-  .btn-gh:hover { background: var(--acc); color: #F6F1E7; text-decoration: none; }
+  .btn-gh:hover, .btn-demo:hover { background: var(--acc); color: #F6F1E7; text-decoration: none; }
   .btn-gh svg { width: 16px; height: 16px; fill: currentColor; }
+  .btn-demo { background: var(--acc); color: #F6F1E7; font-weight: 700; }
+  .btn-demo:hover { background: #7A4D0A; border-color: #7A4D0A; }
+  .btn-demo .play { font-size: 11px; }
 
-  /* ---------- hero slide wireframe — a dark slide on the paper desk ---------- */
-  .slide-fig { position: relative; }
-  .slide-frame {
-    aspect-ratio: 16 / 9;
+  /* ---------- hero: the fourth app ---------- */
+  .fourth-app { margin-top: clamp(52px, 6vw, 80px); }
+  .app-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    max-width: 880px; margin: 0 auto;
+    position: relative; z-index: 2;
+  }
+  .app-tile {
     border: 1px solid var(--card-bd);
-    background:
-      linear-gradient(rgba(232,163,61,0.04), rgba(232,163,61,0) 40%),
-      var(--card-ink);
-    border-radius: 5px;
+    border-radius: 8px;
+    background: #FBF7EF;
+    padding: 22px 18px 18px;
+    text-align: center;
     position: relative;
-    box-shadow: 0 30px 70px -24px rgba(28,22,18,0.55);
-    transform: rotate(-1.2deg);
   }
-  .slide-frame::before {
-    content: "slide 3 · 13.33 × 7.5 in";
-    position: absolute; top: -26px; right: 2px;
-    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em;
-    color: var(--faint); text-transform: uppercase;
+  .app-tile .app-glyph {
+    width: 44px; height: 44px; margin: 0 auto 12px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 700; font-size: 21px;
+    color: #F6F1E7;
+    background: #8A8073;
   }
-  .shape {
-    position: absolute;
-    border: 1px dashed rgba(201,189,166,0.5);
-    border-radius: 2px;
+  .app-tile .app-name {
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.08em; color: var(--fg);
   }
-  .shape .tag {
-    position: absolute; top: -17px; left: -1px;
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
-    color: #8A8A84; white-space: nowrap;
+  .app-tile .app-user {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--faint); margin-top: 5px;
   }
-  .shape .tag b { color: var(--card-amber); font-weight: 500; }
-  .shape-title { top: 9%; left: 6%; width: 64%; height: 17%; }
-  .shape-title .fill {
-    position: absolute; inset: 18% 8% auto 6%;
-    height: 30%; background: var(--card-text); opacity: .55; border-radius: 1px;
+  .app-tile.agent {
+    background: var(--card-ink);
+    border-color: #4A3A26;
+    box-shadow: 0 22px 50px -22px rgba(28,22,18,0.5);
   }
-  .shape-title .fill2 {
-    position: absolute; inset: 60% 40% auto 6%;
-    height: 22%; background: var(--card-text); opacity: .3; border-radius: 1px;
+  .app-tile.agent .app-glyph {
+    background: transparent; border: 1px solid var(--card-amber);
+    color: var(--card-amber);
+    font-family: var(--mono); font-size: 18px; font-weight: 400;
   }
-  .shape-body { top: 36%; left: 6%; width: 50%; height: 50%; }
-  .shape-body i {
-    position: absolute; left: 7%; height: 7%;
-    background: var(--card-text); opacity: .3; border-radius: 1px; display: block;
+  .app-tile.agent .app-name { color: #FFFEFB; }
+  .app-tile.agent .app-user { color: var(--card-amber); }
+  .app-tile.agent::before {
+    content: "the fourth one";
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: #F6F1E7; background: var(--acc);
+    padding: 3px 10px 2px; border-radius: 3px; white-space: nowrap;
   }
-  .shape-pic {
-    top: 36%; left: 62%; width: 32%; height: 50%;
-    border-style: solid; border-color: rgba(232,163,61,0.85);
-    background: repeating-linear-gradient(-45deg, rgba(232,163,61,0.10) 0 6px, transparent 6px 12px);
+  .funnel {
+    display: flex; flex-direction: column; align-items: center;
+    margin-top: 4px;
   }
-  .shape-pic .tag { color: var(--card-amber); top: auto; bottom: -19px; left: auto; right: -1px; }
-  .slide-caption {
-    margin-top: 30px;
-    font-family: var(--mono); font-size: 12px; line-height: 1.8;
-    color: var(--faint);
+  .funnel svg { display: block; width: min(880px, 100%); height: 74px; }
+  .funnel .f-line { stroke: var(--card-bd); stroke-width: 1.25; fill: none; }
+  .funnel .f-line.hot { stroke: var(--acc); }
+  .file-chip {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    color: var(--fg);
+    border: 1px solid var(--card-bd);
+    background: #FBF7EF;
+    border-radius: 5px; padding: 10px 20px;
   }
-  .slide-caption .op { color: var(--acc); font-weight: 700; }
+  .file-chip .ext { color: var(--acc); }
+  .fourth-caption {
+    text-align: center;
+    margin: 18px auto 0;
+    max-width: 56ch;
+    color: var(--sub); font-size: 16.5px;
+  }
+  .fourth-caption strong { color: var(--fg); font-weight: 620; }
 
   /* ---------- sections ---------- */
   .sect-pad { padding: clamp(56px, 7vw, 96px) 0; }
   .sect-head { position: relative; padding-top: 26px; }
 
-  /* ---------- three paths ---------- */
+  /* ---------- §01 the x-ray ---------- */
+  .xray {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0;
+    margin-top: 56px;
+    border: 1px solid var(--hair); border-radius: 8px;
+    overflow: hidden;
+    position: relative; z-index: 2;
+  }
+  .xray-pane { padding: 0; min-width: 0; }
+  .xray-label {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--hair);
+  }
+  .xray-you { background: #F6F1E7; }
+  .xray-you .xray-label { color: #7A6E5E; border-color: #E3D9C6; }
+  .xray-agent { background: var(--card-ink); border-left: 1px solid var(--hair); }
+  .xray-agent .xray-label { color: var(--card-amber); border-color: #3A2E22; }
+  .xray-body { padding: 26px; }
+
+  /* the human-side mini slide */
+  .mini-slide {
+    aspect-ratio: 16/9;
+    background: #FFFEFB;
+    border: 1px solid #D8CDBA;
+    border-radius: 4px;
+    box-shadow: 0 14px 34px -18px rgba(28,22,18,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+  .ms-title {
+    position: absolute; top: 10%; left: 7%;
+    font-family: var(--display); font-weight: 640;
+    font-size: clamp(14px, 1.7vw, 21px); color: #1C1612;
+    letter-spacing: -0.01em;
+  }
+  .ms-rule { position: absolute; top: 26%; left: 7%; width: 18%; height: 3px; background: #915C0D; }
+  .ms-line { position: absolute; left: 7%; height: 5.5%; background: #E3D9C6; border-radius: 2px; }
+  .ms-pic {
+    position: absolute; top: 38%; right: 7%; width: 34%; height: 48%;
+    border-radius: 3px;
+    background: linear-gradient(135deg, #915C0D 0%, #E8A33D 60%, #F0C070 100%);
+  }
+  .ms-pic::after {
+    content: "▲"; position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,254,251,0.85); font-size: 22px;
+  }
+  .xray-caption {
+    margin-top: 18px;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.8;
+    color: #8A8073;
+  }
+  .xray-agent .xray-caption { color: var(--card-faint); }
+  .xray-caption b { color: #915C0D; font-weight: 700; }
+  .xray-agent .xray-caption b { color: var(--card-amber); }
+
+  .xml-scroll {
+    font-family: var(--mono); font-size: 11.5px; line-height: 1.7;
+    color: #7E7260;
+    max-height: 300px;
+    overflow: hidden;
+    position: relative;
+    -webkit-mask-image: linear-gradient(#000 62%, transparent);
+            mask-image: linear-gradient(#000 62%, transparent);
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .xml-scroll .xt { color: #9C8E76; }
+  .xml-scroll .xa { color: #6E6253; }
+  .xml-scroll .xv { color: #C9BDA6; }
+
+  /* the two dead ends + the app way */
   .paths {
     display: grid; grid-template-columns: 1fr 1fr 1fr;
     gap: 0;
-    margin-top: 56px;
+    margin-top: 48px;
     border: 1px solid var(--hair);
     border-radius: 6px;
     overflow: hidden;
     position: relative; z-index: 2;
   }
+  .paths > * { min-width: 0; }
   .path {
     padding: 34px 30px 38px;
     background: rgba(24,18,16,0.45);
     border-left: 1px solid var(--hair);
     position: relative;
-    backdrop-filter: blur(2px);
   }
   .path:first-child { border-left: none; }
   .path h3 {
@@ -368,160 +444,272 @@
     content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
     background: var(--acc);
   }
-  .path p { color: var(--sub); font-size: 16px; }
-  .path.good p { color: var(--sub); }
+  .path p { color: var(--sub); font-size: 15.5px; }
+  .path p + p { margin-top: 10px; }
   .path p code { font-family: var(--mono); font-size: 0.82em; color: var(--fg); border: none; padding: 0; }
-  .zip-stat {
-    margin-top: 26px; position: relative; z-index: 2;
-    font-family: var(--mono); font-size: 13px; line-height: 1.8; color: var(--faint);
-  }
-  .zip-stat b { color: var(--acc); font-weight: 700; }
+  .path p strong { color: var(--fg); font-weight: 620; }
 
-  /* ---------- terminal cards (dark in BOTH worlds) ---------- */
-  .term {
-    background: var(--card-ink);
-    border: 1px solid var(--card-bd);
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: 0 24px 60px -28px rgba(20,14,10,0.6);
+  /* ---------- §02 the loop ---------- */
+  .loop {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-top: 56px;
     position: relative; z-index: 2;
   }
-  .w-dark .term { background: var(--card-lift); box-shadow: 0 24px 70px -24px rgba(0,0,0,0.8); }
-  .term-bar {
+  .loop > * { min-width: 0; }
+  .loop-step {
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    background: rgba(34,26,20,0.6);
+    padding: 24px 22px 26px;
+    position: relative;
+  }
+  .loop-step .step-no {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--acc);
     display: flex; align-items: center; gap: 10px;
-    padding: 11px 16px;
-    border-bottom: 1px solid rgba(232,163,61,0.18);
-    font-family: var(--mono); font-size: 12px; color: var(--card-faint);
+    margin-bottom: 14px;
   }
-  .term-bar .dots { display: flex; gap: 6px; }
-  .term-bar .dots i { width: 9px; height: 9px; border-radius: 50%; background: #3A2E22; display: block; }
-  .term-bar .dots i:first-child { background: #6B4F23; }
-  .term-bar .fname { margin-left: 6px; letter-spacing: 0.06em; }
-  .term pre {
-    padding: 22px 24px;
-    font-family: var(--mono);
-    font-size: 13.5px;
-    line-height: 1.75;
-    overflow-x: auto;
+  .loop-step .step-no i {
+    font-style: normal;
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1px solid var(--acc);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0;
+  }
+  .loop-step h4 {
+    font-family: var(--display); font-weight: 600;
+    font-size: 19px; line-height: 1.2; color: var(--fg);
+    letter-spacing: -0.01em;
+  }
+  .loop-step p { margin-top: 10px; color: var(--sub); font-size: 14.5px; line-height: 1.55; }
+  .loop-step p strong { color: var(--fg); font-weight: 620; }
+  .loop-step .bubble {
+    margin-top: 14px;
+    font-family: var(--mono); font-size: 11.5px; line-height: 1.65;
     color: var(--card-text);
+    background: var(--card-ink);
+    border: 1px solid var(--card-bd);
+    border-radius: 5px;
+    padding: 10px 12px;
+    overflow-x: auto; white-space: pre;
   }
-
-  /* json + terminal tokens — card discipline: warm body, amber accents */
-  .j-key  { color: #9C8E76; }
-  .j-str  { color: var(--card-text); }
-  .j-op   { color: var(--card-amber); font-weight: 700; }
-  .j-num  { color: var(--card-amber); }
-  .j-pun  { color: var(--card-faint); }
-  .t-red    { color: var(--red); font-weight: 700; }
-  .t-dim    { color: var(--card-faint); }
-  .t-amber  { color: var(--card-amber); }
-  .t-ok     { color: var(--card-amber); }
-  .t-cream  { color: #EDE4D2; }
-  .t-prompt { color: var(--card-amber); }
-
-  /* ---------- patch model layout ---------- */
-  .patch-grid .term pre { font-size: 13px; }
-  .patch-grid {
-    display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
-    gap: 56px;
-    margin-top: 56px;
-    align-items: start;
+  .loop-step .bubble.human {
+    font-family: var(--display); font-style: italic; font-size: 14.5px;
+    white-space: normal;
+    color: #EDE4D2;
   }
-  .op-notes { display: flex; flex-direction: column; }
-  .op-note { padding: 20px 0; border-top: 1px solid var(--hair); }
-  .op-note:first-child { border-top: none; padding-top: 6px; }
-  .op-note h4 {
-    font-family: var(--mono); font-size: 13px; font-weight: 700;
-    color: var(--acc); letter-spacing: 0.04em;
-    margin-bottom: 6px;
+  .loop-step .bubble .b-op { color: var(--card-amber); font-weight: 700; }
+  .loop-step .bubble .b-dim { color: var(--card-faint); }
+  .loop-step .bubble .b-ok { color: var(--card-amber); }
+  .loop-arrow {
+    position: absolute; top: 50%; right: -15px; transform: translateY(-50%);
+    color: var(--acc); font-size: 15px; z-index: 3;
+    font-family: var(--mono);
   }
-  .op-note h4 em { font-style: italic; }
-  .op-note p { color: var(--sub); font-size: 15.5px; line-height: 1.55; }
-  .op-note p strong { color: var(--fg); font-weight: 620; }
-  .patch-kicker {
+  .loop-kicker {
     margin-top: 34px;
     font-family: var(--mono); font-size: 13px; line-height: 1.8;
     color: var(--faint);
+    position: relative; z-index: 2;
+    max-width: 88ch;
   }
-  .patch-kicker b { color: var(--acc); font-weight: 700; }
+  .loop-kicker b { color: var(--acc); font-weight: 700; }
 
-  /* ---------- the linter mechanic card (dark) ---------- */
-  .mechanic {
-    margin-top: 48px;
-    border: 1px solid var(--hair); border-radius: 6px;
-    padding: 32px 30px 34px;
-    background: rgba(34,26,20,0.55);
+  /* ---------- demo video ---------- */
+  .demo-shell {
+    margin-top: 52px;
+    display: flex; justify-content: center;
     position: relative; z-index: 2;
   }
-  .mechanic .mech-no {
-    font-family: var(--mono); font-size: 12px; font-weight: 700;
-    letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint);
+  .demo-card { max-width: 560px; width: 100%; }
+  .demo-fallback {
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    background: rgba(34,26,20,0.7);
+    padding: 30px 30px 32px;
+    text-align: center;
   }
-  .mechanic .mech-no b { color: var(--acc); margin-right: 8px; }
-  .mechanic h3 {
-    font-family: var(--display); font-weight: 560;
-    font-size: clamp(24px, 2.6vw, 31px);
-    line-height: 1.12; letter-spacing: -0.01em;
-    margin-top: 10px; color: var(--fg);
+  .demo-fallback .play-ring {
+    width: 56px; height: 56px; margin: 0 auto 16px;
+    border-radius: 50%; border: 1px solid var(--acc);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--acc); font-size: 16px;
   }
-  .mechanic h3 em { font-style: italic; font-weight: 440; color: var(--acc); }
-  .mechanic p { color: var(--sub); font-size: 16.5px; max-width: 64ch; margin-top: 14px; }
-  .mechanic p strong { color: var(--fg); font-weight: 620; }
+  .demo-fallback h4 {
+    font-family: var(--display); font-weight: 600; font-size: 22px; color: var(--fg);
+  }
+  .demo-fallback p { color: var(--sub); font-size: 15.5px; margin-top: 8px; }
 
-  /* ---------- coverage line (compact) ---------- */
-  .outscope {
-    margin-top: 28px;
-    font-family: var(--mono); font-size: 13px; line-height: 1.8;
-    color: var(--faint);
-    border-left: 2px solid var(--acc);
-    padding-left: 18px;
+  /* ---------- §03 human-terms command table ---------- */
+  .verbs {
+    margin-top: 56px;
+    border: 1px solid var(--hair); border-radius: 8px;
+    overflow: hidden;
     position: relative; z-index: 2;
-  }
-  .outscope b { color: var(--sub); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 11.5px; }
-
-  /* ---------- comparison (dark) ---------- */
-  .cmp {
-    margin-top: 56px; border: 1px solid var(--hair); border-radius: 6px;
-    overflow: hidden; background: var(--hair);
+    background: var(--hair);
     display: grid; gap: 1px;
-    position: relative; z-index: 2;
   }
-  .cmp-row {
-    display: grid; grid-template-columns: 0.62fr 1fr 1fr; gap: 1px;
+  .verb-row {
+    display: grid; grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+    gap: 1px;
     background: var(--hair);
   }
-  .cmp-row > div { background: #1D1612; padding: 18px 20px; color: var(--sub); font-size: 14.5px; line-height: 1.55; }
-  .cmp-row > div code { font-family: var(--mono); font-size: 0.85em; color: var(--fg); border: none; padding: 0; }
-  .cmp-head > div {
-    font-family: var(--mono); font-size: 11.5px; font-weight: 700;
-    letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
-    padding: 14px 20px; background: var(--card-lift);
+  .verb-row > div { background: #F9F5EC; padding: 20px 24px; }
+  .verb-row .v-you { font-size: 16px; color: var(--sub); }
+  .verb-row .v-you b { color: var(--fg); font-weight: 620; }
+  .verb-row .v-mid {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--acc); font-family: var(--mono); font-size: 13px;
+    background: #F3EDE0;
+    padding: 0;
   }
-  .cmp-head > .cmp-dh { color: var(--acc); }
-  .cmp-m {
+  .verb-row .v-agent { background: var(--card-ink); }
+  .verb-row .v-agent .op-chip {
     font-family: var(--mono); font-size: 12.5px; font-weight: 700;
-    letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg) !important;
+    color: var(--card-amber);
   }
-  .cmp-row > .cmp-dh { background: #241B14; color: var(--sub); }
-  .cmp-row > .cmp-dh em { color: var(--acc); font-style: italic; }
-  @media (max-width: 880px) {
-    .cmp-row { grid-template-columns: 1fr; }
-    .cmp-head { display: none; }
-    .cmp-row > .cmp-dh::before { content: "hands-on-deck — "; color: var(--acc); font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+  .verb-row .v-agent p {
+    margin-top: 6px; font-size: 14px; line-height: 1.55; color: var(--card-text);
   }
-
-  /* ---------- proof block (dark) ---------- */
-  .proof {
-    margin-top: 44px;
-    border-left: 2px solid var(--acc); padding-left: 22px;
+  .verbs-head {
+    display: grid; grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+    gap: 1px; background: var(--hair);
+  }
+  .verbs-head > div {
+    font-family: var(--mono); font-size: 11.5px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 14px 24px;
+  }
+  .verbs-head .vh-you { background: #F3EDE0; color: #7A6E5E; }
+  .verbs-head .vh-mid { background: #F3EDE0; padding: 14px 0; }
+  .verbs-head .vh-agent { background: var(--card-lift); color: var(--card-amber); }
+  .verbs-foot {
+    margin-top: 26px;
+    font-family: var(--mono); font-size: 13px; line-height: 1.8; color: var(--faint);
     position: relative; z-index: 2;
   }
-  .proof p { color: var(--sub); font-size: 17px; line-height: 1.6; max-width: 62ch; }
-  .proof p strong { color: var(--fg); font-weight: 620; }
-  .proof .thesis {
-    margin-top: 16px;
-    font-family: var(--display); font-style: italic; font-weight: 560;
-    font-size: clamp(21px, 2.4vw, 28px); color: var(--acc);
+  .verbs-foot b { color: var(--acc); font-weight: 700; }
+
+  /* ---------- §04 self-check visual ---------- */
+  .check-grid {
+    display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: 56px;
+    margin-top: 56px;
+    align-items: start;
+    position: relative; z-index: 2;
+  }
+  .check-grid > * { min-width: 0; }
+  .lint-fig { position: relative; margin-top: 28px; }
+  .lint-frame {
+    aspect-ratio: 16/9;
+    border: 1px solid var(--card-bd);
+    background:
+      linear-gradient(rgba(232,163,61,0.04), rgba(232,163,61,0) 40%),
+      var(--card-ink);
+    border-radius: 6px;
+    position: relative;
+    box-shadow: 0 30px 70px -24px rgba(0,0,0,0.7);
+  }
+  .lint-frame::before {
+    content: "what the agent sees after its edit";
+    position: absolute; top: -28px; left: 2px;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em;
+    color: var(--faint); text-transform: uppercase;
+  }
+  .lshape {
+    position: absolute;
+    border: 1px dashed rgba(201,189,166,0.45);
+    border-radius: 2px;
+  }
+  .lshape i {
+    position: absolute; left: 8%; height: 9%;
+    background: var(--card-text); opacity: .35; border-radius: 1px; display: block;
+  }
+  .lshape.oops { border-color: var(--red); border-style: solid; }
+  .lshape .flag {
+    position: absolute; font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.06em; color: var(--red); white-space: nowrap;
+  }
+  .lint-report {
+    margin-top: 30px;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.9;
+    color: var(--faint);
+  }
+  .lint-report .lr-bad { color: var(--red); }
+  .lint-report .lr-fix { color: var(--card-amber); }
+  .lint-report .lr-ok { color: var(--card-amber); font-weight: 700; }
+  .check-notes { display: flex; flex-direction: column; }
+  .check-note { padding: 22px 0; border-top: 1px solid var(--hair); }
+  .check-note:first-child { border-top: none; padding-top: 6px; }
+  .check-note h4 {
+    font-family: var(--display); font-weight: 600; font-size: 20px;
+    color: var(--fg); letter-spacing: -0.01em;
+  }
+  .check-note h4 em { font-style: italic; color: var(--acc); font-weight: 480; }
+  .check-note p { color: var(--sub); font-size: 15.5px; line-height: 1.6; margin-top: 7px; }
+  .check-note p strong { color: var(--fg); font-weight: 620; }
+  .check-note p em { font-style: italic; }
+
+  /* ---------- §05 engine stack ---------- */
+  .keep-grid {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 64px;
+    margin-top: 56px;
+    align-items: start;
+    position: relative; z-index: 2;
+  }
+  .keep-grid > * { min-width: 0; }
+  .keep-col h3 {
+    font-family: var(--display); font-weight: 600;
+    font-size: clamp(22px, 2.4vw, 28px); line-height: 1.15;
+    letter-spacing: -0.01em; color: var(--fg);
+  }
+  .keep-col h3 em { font-style: italic; font-weight: 480; color: var(--acc); }
+  .keep-col > p { color: var(--sub); font-size: 16.5px; margin-top: 14px; }
+  .keep-col > p strong { color: var(--fg); font-weight: 620; }
+  .keep-col > p em { font-style: italic; }
+  .stack { margin-top: 28px; display: flex; flex-direction: column; gap: 10px; }
+  .layer {
+    border-radius: 6px;
+    padding: 18px 22px;
+    font-family: var(--mono);
+    position: relative;
+  }
+  .layer .l-name { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; }
+  .layer .l-desc { font-size: 12px; margin-top: 4px; line-height: 1.6; }
+  .layer.yours {
+    background: #FBF7EF;
+    border: 1px dashed #C9BA96;
+    color: var(--fg);
+  }
+  .layer.yours .l-desc { color: var(--faint); }
+  .layer.engine {
+    background: var(--card-ink);
+    border: 1px solid #4A3A26;
+    color: #FFFEFB;
+    box-shadow: 0 18px 44px -20px rgba(28,22,18,0.5);
+  }
+  .layer.engine .l-name { color: var(--card-amber); }
+  .layer.engine .l-desc { color: var(--card-text); }
+  .layer.file {
+    background: transparent;
+    border: 1px solid var(--card-bd);
+    color: var(--sub);
+  }
+  .layer.file .l-desc { color: var(--faint); }
+  .stack-sep {
+    text-align: center; font-family: var(--mono); font-size: 11px; color: var(--faint);
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .keep-quote {
+    margin-top: 24px;
+    border-left: 2px solid var(--acc);
+    padding: 4px 0 4px 18px;
+    font-style: italic;
+    color: var(--sub);
+    font-size: 16px;
   }
 
   /* ---------- install (compact lines) ---------- */
@@ -531,28 +719,34 @@
     overflow: hidden; position: relative; z-index: 2;
   }
   .inst-line {
-    display: grid; grid-template-columns: 180px 1fr; gap: 24px;
+    display: grid; grid-template-columns: 220px 1fr; gap: 24px;
     align-items: center; background: #F9F5EC; padding: 18px 24px;
   }
   .inst-line .where {
-    font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: 0.16em;
+    font-family: var(--mono); font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em;
     text-transform: uppercase; color: var(--acc);
+    line-height: 1.7;
+  }
+  .inst-line .where .sub {
+    display: block; color: var(--faint); font-weight: 400; letter-spacing: .06em;
+    text-transform: none; font-size: 11px;
   }
   .inst-line .cmd {
     font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
-    color: var(--sub); overflow-x: auto; white-space: nowrap;
+    color: var(--sub); overflow-x: auto;
   }
   .inst-line .cmd .prompt { color: var(--acc); user-select: none; }
   .inst-line .cmd .t-dim { color: var(--faint); }
-  .cov-line {
-    margin-top: 28px;
-    font-family: var(--mono); font-size: 13.5px; line-height: 1.8;
-    color: var(--sub);
+
+  /* ---------- FAQ mini ---------- */
+  .faq { margin-top: 56px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px 56px; position: relative; z-index: 2; }
+  .faq > * { min-width: 0; }
+  .faq-item h4 {
+    font-family: var(--display); font-weight: 600; font-size: 19px;
+    color: var(--fg); letter-spacing: -0.01em;
   }
-  .cov-line b { color: var(--acc); font-weight: 700; }
-  @media (max-width: 660px) {
-    .inst-line { grid-template-columns: 1fr; gap: 8px; }
-  }
+  .faq-item p { color: var(--sub); font-size: 15.5px; margin-top: 8px; line-height: 1.6; }
+  .faq-item p strong { color: var(--fg); font-weight: 620; }
 
   /* ---------- close (paper) ---------- */
   .close-pad { padding: clamp(56px, 7vw, 90px) 0 clamp(40px, 5vw, 64px); text-align: center; }
@@ -591,9 +785,15 @@
 
   /* ---------- responsive ---------- */
   @media (max-width: 980px) {
-    .hero-grid { grid-template-columns: 1fr; gap: 70px; }
-    .slide-fig { max-width: 560px; }
-    .patch-grid { grid-template-columns: 1fr; gap: 36px; }
+    .app-row { grid-template-columns: 1fr 1fr; }
+    .funnel svg { display: none; }
+    .funnel { margin-top: 22px; }
+    .xray { grid-template-columns: 1fr; }
+    .xray-agent { border-left: none; border-top: 1px solid var(--hair); }
+    .loop { grid-template-columns: 1fr 1fr; }
+    .loop-arrow { display: none; }
+    .check-grid, .keep-grid { grid-template-columns: 1fr; gap: 44px; }
+    .faq { grid-template-columns: 1fr; }
   }
   @media (max-width: 660px) {
     body { font-size: 17px; }
@@ -602,9 +802,13 @@
     .paths { grid-template-columns: 1fr; }
     .path { border-left: none; border-top: 1px solid var(--hair); }
     .path:first-child { border-top: none; }
-    .term pre { font-size: 12px; padding: 18px 16px; }
+    .loop { grid-template-columns: 1fr; }
+    .verb-row, .verbs-head { grid-template-columns: 1fr; }
+    .verb-row .v-mid, .verbs-head .vh-mid { display: none; }
     .install-line { font-size: 12.5px; padding: 12px 14px; width: 100%; }
+    .inst-line { grid-template-columns: 1fr; gap: 8px; }
     .foot-sig { text-align: left; }
+    .app-row { grid-template-columns: 1fr; max-width: 320px; }
   }
 </style>
 </head>
@@ -614,9 +818,10 @@
   <div class="wrap nav-inner">
     <a class="wordmark" href="#"><span class="dollar">$</span>hands-on-deck</a>
     <div class="nav-links">
-      <a href="#idea">the idea</a>
-      <a href="#html">create from html</a>
-      <a href="#versus">vs the pptx skill</a>
+      <a href="#problem">the problem</a>
+      <a href="#unlock">how it works</a>
+      <a href="#cando">what it can do</a>
+      <a href="#yours">make it yours</a>
       <a href="#install">install</a>
       <a class="nav-gh" href="https://github.com/EveryInc/hands-on-deck">GitHub ↗</a>
     </div>
@@ -625,235 +830,405 @@
 
 <!-- ============ HERO · paper ============ -->
 <header class="hero w-paper vignette threaded" style="--txp: 64px; --tx: 64px;">
-  <div class="wrap">
-    <div class="hero-grid">
-      <div>
-        <div class="hero-meta">
-          <span class="mit">MIT licensed</span><span class="dot">·</span>
-          <span>open source</span><span class="dot">·</span>
-          <span>an Agent Skill</span>
+  <div class="wrap hero-pad">
+    <div class="hero-meta">
+      <span class="mit">MIT licensed</span><span class="dot">·</span>
+      <span>open source</span><span class="dot">·</span>
+      <span>works with Claude, ChatGPT &amp; any AI agent</span>
+    </div>
+    <h1 class="title">hands <span class="hand">on</span> deck</h1>
+    <p class="tagline">The PowerPoint app, <b>built for AI agents</b>.</p>
+    <p class="hero-sub">Give your AI agent a slide deck and it will edit it the way you would — open it, make the changes, <strong>look at the result</strong>, and fix what's off. Without wrecking your template, your brand, or the file itself.</p>
+    <div class="hero-actions">
+      <a class="btn-demo" href="https://x.com/nityeshaga/status/2069900616986759195"><span class="play">▶</span> Watch the demo</a>
+      <div class="install-line">
+        <span class="prompt">&gt;</span>
+        <span id="install-cmd"><span class="cmd-dim">/plugin</span> marketplace add EveryInc/hands-on-deck</span>
+        <button class="copy-btn" data-copy="/plugin marketplace add EveryInc/hands-on-deck">copy</button>
+      </div>
+      <a class="btn-gh" href="https://github.com/EveryInc/hands-on-deck">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </div>
+
+    <!-- the fourth app -->
+    <div class="fourth-app">
+      <div class="app-row">
+        <div class="app-tile">
+          <div class="app-glyph">P</div>
+          <div class="app-name">PowerPoint</div>
+          <div class="app-user">for humans</div>
         </div>
-        <h1 class="title">hands <span class="hand">on</span><br>deck</h1>
-        <p class="tagline">Agent-native PowerPoint manipulation.</p>
-        <p class="hero-sub"><code>deck.py</code> lets AI agents inspect, edit, create, and verify <code>.pptx</code> files — anywhere an agent can run a shell.<span class="pitch">Agents can already make decks. The trouble is nobody can trust what comes back: <b>fast to generate, slow to trust</b>.</span></p>
-        <div class="hero-actions">
-          <div class="install-line">
-            <span class="prompt">&gt;</span>
-            <span id="install-cmd"><span class="cmd-dim">/plugin</span> marketplace add EveryInc/hands-on-deck</span>
-            <button class="copy-btn" data-copy="/plugin marketplace add EveryInc/hands-on-deck">copy</button>
-          </div>
-          <a class="btn-gh" href="https://github.com/EveryInc/hands-on-deck">
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
-            EveryInc/hands-on-deck
-          </a>
+        <div class="app-tile">
+          <div class="app-glyph">K</div>
+          <div class="app-name">Keynote</div>
+          <div class="app-user">for humans</div>
+        </div>
+        <div class="app-tile">
+          <div class="app-glyph">S</div>
+          <div class="app-name">Google Slides</div>
+          <div class="app-user">for humans</div>
+        </div>
+        <div class="app-tile agent">
+          <div class="app-glyph">&gt;_</div>
+          <div class="app-name">hands-on-deck</div>
+          <div class="app-user">for AI agents</div>
         </div>
       </div>
-      <figure class="slide-fig" aria-hidden="true">
-        <div class="slide-frame">
-          <div class="shape shape-title">
-            <span class="tag"><b>s12</b> TEXT_BOX</span>
-            <i class="fill"></i><i class="fill2"></i>
-          </div>
-          <div class="shape shape-body">
-            <span class="tag"><b>s18</b> AUTO_SHAPE</span>
-            <i style="top:14%; width:72%;"></i>
-            <i style="top:34%; width:58%;"></i>
-            <i style="top:54%; width:66%;"></i>
-            <i style="top:74%; width:40%;"></i>
-          </div>
-          <div class="shape shape-pic">
-            <span class="tag"><b>s9</b> PICTURE ← swap-image</span>
-          </div>
-        </div>
-        <figcaption class="slide-caption">
-          the agent doesn't draw pixels or hand-write XML —<br>
-          it addresses shapes by id and states <span class="op">what should change</span>.
-        </figcaption>
-      </figure>
+      <div class="funnel" aria-hidden="true">
+        <svg viewBox="0 0 880 74" preserveAspectRatio="none">
+          <path class="f-line" d="M110 0 V18 C110 44, 440 30, 440 62"/>
+          <path class="f-line" d="M330 0 V18 C330 44, 440 34, 440 62"/>
+          <path class="f-line" d="M550 0 V18 C550 44, 440 34, 440 62"/>
+          <path class="f-line hot" d="M770 0 V18 C770 44, 440 30, 440 62"/>
+          <path class="f-line" d="M440 62 V74"/>
+        </svg>
+        <span class="file-chip">your-deck<span class="ext">.pptx</span></span>
+      </div>
+      <p class="fourth-caption">All four work on the <strong>same file</strong>. Your decks can live in PowerPoint, Keynote, or Google Slides — if it saves as <strong>.pptx</strong> (the world's most common deck format, and all three speak it), hands-on-deck works on it.</p>
     </div>
   </div>
 </header>
 
-<!-- ============ § THE CORE IDEA · dark ============ -->
-<section id="idea" class="w-dark glowed threaded" style="--txp: 64px; --tx: 128px;">
+<!-- ============ § 01 THE PROBLEM · dark ============ -->
+<section id="problem" class="w-dark glowed threaded" style="--txp: 64px; --tx: 128px;">
   <div class="wrap sect-pad">
     <div class="sect-head">
-      <p class="eyebrow"><span class="secno">§ 01</span>The core idea</p>
-      <h2 class="sect">A .pptx is a zip of XML.<br>There were <em>two bad ways in</em>.</h2>
-      <p class="lede">You see a slide. The agent gets a ZIP file — one ordinary slide is about <strong>2,000 lines of OOXML</strong>. <strong>hands-on-deck takes a third path.</strong></p>
+      <p class="eyebrow"><span class="secno">§ 01</span>Why AI keeps wrecking decks</p>
+      <h2 class="sect">You see a slide. The AI sees<br><em>ten thousand lines of code</em>.</h2>
+      <p class="lede">Here's the secret every deck app hides from you: a .pptx file is really a <strong>zipped folder of hundreds of code files</strong> (a format called XML). PowerPoint reads that code and paints the slide. An AI agent doesn't get the painting — <strong>it gets the code</strong>. Every AI deck disaster you've seen starts right here.</p>
+    </div>
+
+    <div class="xray">
+      <div class="xray-pane xray-you">
+        <div class="xray-label">What you see</div>
+        <div class="xray-body">
+          <div class="mini-slide" aria-hidden="true">
+            <div class="ms-title">Q3 Results</div>
+            <div class="ms-rule"></div>
+            <div class="ms-line" style="top:38%; width:42%;"></div>
+            <div class="ms-line" style="top:50%; width:36%;"></div>
+            <div class="ms-line" style="top:62%; width:46%;"></div>
+            <div class="ms-line" style="top:74%; width:28%;"></div>
+            <div class="ms-pic"></div>
+          </div>
+          <p class="xray-caption">one slide · a title, four bullets, a chart<br><b>ten seconds</b> to take in</p>
+        </div>
+      </div>
+      <div class="xray-pane xray-agent">
+        <div class="xray-label">What the agent gets</div>
+        <div class="xray-body">
+          <div class="xml-scroll" aria-hidden="true"><span class="xt">&lt;p:sp&gt;&lt;p:nvSpPr&gt;&lt;p:cNvPr</span> <span class="xa">id=</span><span class="xv">"5"</span> <span class="xa">name=</span><span class="xv">"TextBox 4"</span><span class="xt">/&gt;</span>
+<span class="xt">&lt;p:spPr&gt;&lt;a:xfrm&gt;&lt;a:off</span> <span class="xa">x=</span><span class="xv">"838200"</span> <span class="xa">y=</span><span class="xv">"685800"</span><span class="xt">/&gt;</span>
+<span class="xt">&lt;a:ext</span> <span class="xa">cx=</span><span class="xv">"7315200"</span> <span class="xa">cy=</span><span class="xv">"1143000"</span><span class="xt">/&gt;&lt;/a:xfrm&gt;</span>
+<span class="xt">&lt;a:prstGeom</span> <span class="xa">prst=</span><span class="xv">"rect"</span><span class="xt">&gt;&lt;a:avLst/&gt;&lt;/a:prstGeom&gt;</span>
+<span class="xt">&lt;/p:spPr&gt;&lt;p:txBody&gt;&lt;a:bodyPr</span> <span class="xa">rtlCol=</span><span class="xv">"0"</span><span class="xt">/&gt;</span>
+<span class="xt">&lt;a:p&gt;&lt;a:pPr</span> <span class="xa">algn=</span><span class="xv">"l"</span><span class="xt">/&gt;&lt;a:r&gt;&lt;a:rPr</span> <span class="xa">lang=</span><span class="xv">"en-US"</span>
+  <span class="xa">sz=</span><span class="xv">"3200"</span> <span class="xa">b=</span><span class="xv">"1"</span><span class="xt">&gt;&lt;a:solidFill&gt;&lt;a:srgbClr</span> <span class="xa">val=</span><span class="xv">"1C1612"</span><span class="xt">/&gt;</span>
+<span class="xt">&lt;/a:solidFill&gt;&lt;a:latin</span> <span class="xa">typeface=</span><span class="xv">"Fraunces"</span><span class="xt">/&gt;&lt;/a:rPr&gt;</span>
+<span class="xt">&lt;a:t&gt;</span><span class="xv">Q3 Results</span><span class="xt">&lt;/a:t&gt;&lt;/a:r&gt;&lt;/a:p&gt;&lt;/p:txBody&gt;</span>
+<span class="xt">&lt;/p:sp&gt;&lt;p:sp&gt;&lt;p:nvSpPr&gt;&lt;p:cNvPr</span> <span class="xa">id=</span><span class="xv">"6"</span> <span class="xa">name=</span><span class="xv">"Content 5"</span><span class="xt">/&gt;</span>
+<span class="xt">&lt;p:spPr&gt;&lt;a:xfrm&gt;&lt;a:off</span> <span class="xa">x=</span><span class="xv">"838200"</span> <span class="xa">y=</span><span class="xv">"2057400"</span><span class="xt">/&gt;</span>
+<span class="xt">&lt;a:ext</span> <span class="xa">cx=</span><span class="xv">"4572000"</span> <span class="xa">cy=</span><span class="xv">"3429000"</span><span class="xt">/&gt;&lt;/a:xfrm&gt;</span>
+<span class="xt">&lt;a:prstGeom</span> <span class="xa">prst=</span><span class="xv">"rect"</span><span class="xt">&gt;&lt;a:avLst/&gt;&lt;/a:prstGeom&gt;&hellip;</span></div>
+          <p class="xray-caption">the same slide · <b>~2,000 lines</b> of this, per slide<br>a 20-slide deck ≈ <b>tens of thousands of lines</b></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sect-head" style="margin-top: 72px;">
+      <h2 class="sect" style="font-size: clamp(26px, 3vw, 38px);">Until now, an agent had <em>two bad options</em>.</h2>
     </div>
     <div class="paths">
       <div class="path bad">
-        <h3>Hand-write OOXML <span class="verdict">fragile</span></h3>
-        <p>Unzip, edit <code>slide3.xml</code> raw, rezip. Thousands of tokens on angle brackets; one bad namespace and PowerPoint refuses the file.</p>
+        <h3>Edit the code by hand <span class="verdict">fragile · slow</span></h3>
+        <p>How most tools work today — including the AI apps' built-in deck ability: the agent unpacks all those files and <strong>types its changes directly into the code</strong>.</p>
+        <p>It's slow, it burns through tokens, and one typo can make PowerPoint refuse to open the file. Worst of all: an agent spending its whole attention on writing code has <strong>none left for how the slide actually looks</strong>.</p>
       </div>
       <div class="path bad">
         <h3>Regenerate from scratch <span class="verdict">lossy</span></h3>
-        <p>Rebuild with a generation library — and lose the master, the theme, every designer decision the template encodes.</p>
+        <p>The other way: throw your file away and generate a fresh one from a description.</p>
+        <p>The result never matches. Your <strong>template, brand fonts, logo placement, image treatments</strong> — every decision your designer ever made lives in the original file, and regeneration erases all of it.</p>
       </div>
       <div class="path good">
-        <h3>Declarative patch <span class="verdict">hands-on-deck</span></h3>
-        <p>The agent writes a JSON patch describing intent. The tool validates everything, then executes atomically.</p>
+        <h3>Use an app — like you do <span class="verdict">hands-on-deck</span></h3>
+        <p>You would never edit a deck by rewriting its code. You'd open an application built for the job.</p>
+        <p>hands-on-deck is that application, built for agents: <strong>the agent says what should change, the tool changes it.</strong> The code stays the tool's problem — never the agent's, never yours.</p>
       </div>
-    </div>
-    <p class="zip-stat">the LLM compiles intent; the tool does the bytes. <b>The LLM never edits XML.</b></p>
-
-    <div class="patch-grid">
-      <div class="term">
-        <div class="term-bar">
-          <span class="dots"><i></i><i></i><i></i></span>
-          <span class="fname">patch.json</span>
-        </div>
-        <pre><span class="j-pun">{</span><span class="j-key">"ops"</span><span class="j-pun">: [</span>
-  <span class="j-pun">{</span><span class="j-key">"op"</span><span class="j-pun">:</span> <span class="j-op">"replace-text"</span><span class="j-pun">,</span>
-   <span class="j-key">"scope"</span><span class="j-pun">:</span> <span class="j-str">"master"</span><span class="j-pun">,</span> <span class="j-key">"from"</span><span class="j-pun">:</span> <span class="j-str">"Globex"</span><span class="j-pun">,</span> <span class="j-key">"to"</span><span class="j-pun">:</span> <span class="j-str">"Acme"</span><span class="j-pun">},</span>
-  <span class="j-pun">{</span><span class="j-key">"op"</span><span class="j-pun">:</span> <span class="j-op">"set-text"</span><span class="j-pun">,</span>
-   <span class="j-key">"slide"</span><span class="j-pun">:</span> <span class="j-num">3</span><span class="j-pun">,</span> <span class="j-key">"shape"</span><span class="j-pun">:</span> <span class="j-str">"s12"</span><span class="j-pun">,</span> <span class="j-key">"text"</span><span class="j-pun">:</span> <span class="j-pun">[</span><span class="j-str">"Q3 results"</span><span class="j-pun">,</span> <span class="j-str">"Tokens down 84%"</span><span class="j-pun">]},</span>
-  <span class="j-pun">{</span><span class="j-key">"op"</span><span class="j-pun">:</span> <span class="j-op">"swap-image"</span><span class="j-pun">,</span>
-   <span class="j-key">"slide"</span><span class="j-pun">:</span> <span class="j-num">4</span><span class="j-pun">,</span> <span class="j-key">"shape"</span><span class="j-pun">:</span> <span class="j-str">"s9"</span><span class="j-pun">,</span> <span class="j-key">"image"</span><span class="j-pun">:</span> <span class="j-str">"screenshot.png"</span><span class="j-pun">},</span>
-  <span class="j-pun">{</span><span class="j-key">"op"</span><span class="j-pun">:</span> <span class="j-op">"duplicate"</span><span class="j-pun">,</span>
-   <span class="j-key">"slide"</span><span class="j-pun">:</span> <span class="j-num">5</span><span class="j-pun">,</span> <span class="j-key">"shape"</span><span class="j-pun">:</span> <span class="j-str">"s31"</span><span class="j-pun">,</span> <span class="j-key">"offset"</span><span class="j-pun">:</span> <span class="j-pun">[</span><span class="j-num">0</span><span class="j-pun">,</span> <span class="j-num">1.2</span><span class="j-pun">],</span> <span class="j-key">"text"</span><span class="j-pun">:</span> <span class="j-pun">[</span><span class="j-str">"Fourth pillar"</span><span class="j-pun">]}</span>
-<span class="j-pun">]}</span></pre>
-      </div>
-      <div class="op-notes">
-        <div class="op-note">
-          <h4>replace-text · scope: master</h4>
-          <p>Rebrand the whole deck — masters, layouts, every slide — in one op.</p>
-        </div>
-        <div class="op-note">
-          <h4>set-text</h4>
-          <p>Address a shape by its stable id; formatting survives.</p>
-        </div>
-        <div class="op-note">
-          <h4>swap-image</h4>
-          <p>New picture, same frame, same crop. The layout never knows.</p>
-        </div>
-        <div class="op-note">
-          <h4>duplicate</h4>
-          <p>Clone a styled shape, offset in inches, rewrite its text. The template is the design system.</p>
-        </div>
-        <p class="patch-kicker"><b>deck.py deck.pptx apply patch.json --fix --render img/</b><br>— validated first, applied atomically, linted after.</p>
-      </div>
-    </div>
-
-    <div class="mechanic">
-      <p class="mech-no"><b>/</b>failure mode: no spatial sense</p>
-      <h3>The linter watches the agent's <em>hands</em></h3>
-      <p>Agents can't feel overflow or collision. After every apply, the linter reports <strong>only what the patch broke</strong> — exact inches, exact fix command, no noise about pre-existing quirks.</p>
     </div>
   </div>
 </section>
 
-<!-- ============ § CREATE FROM HTML · dark ============ -->
-<section id="html" class="w-dark threaded" style="--txp: 128px; --tx: 48px;">
+<!-- ============ § 02 THE UNLOCK · dark ============ -->
+<section id="unlock" class="w-dark threaded" style="--txp: 128px; --tx: 48px;">
   <div class="wrap sect-pad">
     <div class="sect-head">
-      <p class="eyebrow"><span class="secno">§ 02</span>The create path · <span class="new-flag">new</span></p>
-      <h2 class="sect">Write the slide as a <em>webpage</em>.<br>Ship it as a slide.</h2>
-      <p class="lede">HTML/CSS is the layout language agents know best. <code>html2patch</code> renders your slide in a headless browser and compiles every measured box into a deck.py patch. <strong>The browser measures; deck.py stays the only writer.</strong></p>
+      <p class="eyebrow"><span class="secno">§ 02</span>How it works</p>
+      <h2 class="sect">Agents can't point and click.<br>They're <em>brilliant</em> at typed commands.</h2>
+      <p class="lede">An AI agent can't drag a text box in PowerPoint — those apps need a mouse and eyes on a screen. But there's one kind of software agents operate masterfully: <strong>command-line tools</strong> — programs driven by typed instructions. It's the entire reason coding agents like Claude Code and Codex work so well. So we rebuilt the PowerPoint app as one. Here's a real edit, start to finish:</p>
     </div>
-    <div class="patch-grid">
-      <div class="term">
-        <div class="term-bar">
-          <span class="dots"><i></i><i></i><i></i></span>
-          <span class="fname">slide.html → patch.json → deck.pptx</span>
-        </div>
-        <pre><span class="t-dim">&lt;</span><span class="t-cream">h1</span><span class="t-dim">&gt;</span><span class="t-cream">The deck builds </span><span class="t-dim">&lt;</span><span class="t-cream">em</span><span class="t-dim">&gt;</span><span class="t-cream">itself</span><span class="t-dim">&lt;/</span><span class="t-cream">em</span><span class="t-dim">&gt;</span><span class="t-cream"> now.</span><span class="t-dim">&lt;/</span><span class="t-cream">h1</span><span class="t-dim">&gt;</span>
-<span class="t-dim">&lt;</span><span class="t-cream">div</span> <span class="t-amber">class</span><span class="t-dim">=</span><span class="t-amber">"card"</span><span class="t-dim">&gt;</span><span class="t-cream">…gradient, radius, flexbox…</span><span class="t-dim">&lt;/</span><span class="t-cream">div</span><span class="t-dim">&gt;</span>
-<span class="t-dim">&lt;</span><span class="t-cream">img</span> <span class="t-amber">style</span><span class="t-dim">=</span><span class="t-amber">"object-fit:cover"</span> <span class="t-amber">src</span><span class="t-dim">=</span><span class="t-amber">"chart.png"</span><span class="t-dim">&gt;</span>
 
-<span class="t-dim">$</span> <span class="t-cream">python html2patch.py slide.html --deck deck.pptx</span>
-<span class="t-dim">  → patch.json: 23 ops (add-slide, add-shape, add-picture…)</span>
-<span class="t-dim">$</span> <span class="t-cream">python deck.py deck.pptx apply patch.json --render img/</span>
-<span class="t-ok">  ✓ applied atomically · linted · rendered for your own eyes</span></pre>
+    <div class="loop">
+      <div class="loop-step">
+        <div class="step-no"><i>1</i> you ask</div>
+        <h4>In plain English</h4>
+        <p>You talk to your agent the way you'd brief a colleague.</p>
+        <div class="bubble human">"We're pitching Acme now — rebrand the deck, and swap the old chart on slide 4 for this new screenshot."</div>
+        <span class="loop-arrow">→</span>
       </div>
-      <div class="op-notes">
-        <div class="op-note">
-          <h4>One writer</h4>
-          <p>A compiled slide is born with the same shape ids, lints, and <code>diff</code> as every edit — nudge one box seconds after creating it.</p>
-        </div>
-        <div class="op-note">
-          <h4>Creates <em>into</em> your template</h4>
-          <p><code>add-slide</code> onto your branded master's layouts. Free-form design <strong>inside your own deck</strong> — the thing generate-a-new-file architectures can't do.</p>
-        </div>
+      <div class="loop-step">
+        <div class="step-no"><i>2</i> it writes instructions</div>
+        <h4>Intent, not code</h4>
+        <p>The agent writes a short, readable list of changes. This is the entire "program":</p>
+        <div class="bubble"><span class="b-op">replace-text</span> <span class="b-dim">everywhere:</span>
+  Globex → Acme
+<span class="b-op">swap-image</span> <span class="b-dim">slide 4:</span>
+  new-chart.png</div>
+        <span class="loop-arrow">→</span>
+      </div>
+      <div class="loop-step">
+        <div class="step-no"><i>3</i> the tool edits</div>
+        <h4>Safely, all at once</h4>
+        <p>Every instruction is checked first — if anything's wrong, <strong>nothing</strong> is changed. New text keeps the old text's fonts; a swapped image keeps its exact frame.</p>
+        <div class="bubble"><span class="b-dim">validating 2 ops…</span> <span class="b-ok">✓</span>
+<span class="b-dim">applying…</span>        <span class="b-ok">✓ saved</span></div>
+        <span class="loop-arrow">→</span>
+      </div>
+      <div class="loop-step">
+        <div class="step-no"><i>4</i> it checks the result</div>
+        <h4>With its own eyes</h4>
+        <p>The tool hands back <strong>pictures of the finished slides</strong> plus a report of anything that looks off — and the agent fixes what it finds.</p>
+        <div class="bubble"><span class="b-dim">slide-4.jpg rendered</span>
+<span class="b-ok">✓ no new layout issues</span></div>
+      </div>
+    </div>
+
+    <p class="loop-kicker"><b>The agent never touches the file's code.</b> It states its intent and verifies the outcome; the tool does the bytes. The agent thinks like a designer instead of a programmer — which makes it faster, dramatically cheaper in tokens, and leaves it attention to spare for what actually matters: <b>how the slides look</b>.</p>
+
+    <div class="demo-shell">
+      <div class="demo-card">
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true">
+          <a href="https://x.com/nityeshaga/status/2069900616986759195">Watch hands-on-deck build and edit a real deck →</a>
+        </blockquote>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============ § VS ANTHROPIC + PROOF · dark ============ -->
-<section id="versus" class="w-dark glowed threaded" style="--txp: 48px; --tx: 120px;">
+<!-- ============ § 03 WHAT IT CAN DO · paper ============ -->
+<section id="cando" class="w-paper vignette threaded" style="--txp: 48px; --tx: 120px;">
   <div class="wrap sect-pad">
     <div class="sect-head">
-      <p class="eyebrow"><span class="secno">§ 03</span>The comparison</p>
-      <h2 class="sect">Same job. <em>Different machinery.</em></h2>
-      <p class="lede">Anthropic's pptx skill puts its guardrails in <em>advice to the model</em> — ignored on exactly the slide that matters. Ours are <strong>machinery in the tool</strong>.</p>
+      <p class="eyebrow"><span class="secno">§ 03</span>What it can do</p>
+      <h2 class="sect">Everything you'd do in the app —<br><em>as a command.</em></h2>
+      <p class="lede">Every click and drag you use in PowerPoint has a typed equivalent here. A few of the ~30 operations, translated:</p>
     </div>
 
-    <div class="cmp">
-      <div class="cmp-row cmp-head">
-        <div>the moment</div>
-        <div>Anthropic's pptx skill</div>
-        <div class="cmp-dh">hands-on-deck</div>
+    <div class="verbs">
+      <div class="verbs-head">
+        <div class="vh-you">In the app, you would…</div>
+        <div class="vh-mid"></div>
+        <div class="vh-agent">The agent runs…</div>
       </div>
-      <div class="cmp-row">
-        <div class="cmp-m">Make an edit</div>
-        <div>Unpack the zip, hand-edit <code>slide3.xml</code> raw — the skill's own docs list the OOXML pitfalls to dodge while you type angle brackets.</div>
-        <div class="cmp-dh">Declare the op. <code>set-text</code> inherits the old text's formatting; <code>swap-image</code> keeps frame and crop. The XML is the tool's problem.</div>
+      <div class="verb-row">
+        <div class="v-you">Click into a text box and <b>retype the title</b></div>
+        <div class="v-mid">→</div>
+        <div class="v-agent"><span class="op-chip">set-text</span><p>New words, same look — fonts and formatting carry over automatically.</p></div>
       </div>
-      <div class="cmp-row">
-        <div class="cmp-m">Get it wrong</div>
-        <div>Validation runs at pack time — after all the editing. Errors arrive late, one repack per discovery, and the tree on disk is already half-edited.</div>
-        <div class="cmp-dh">Patch rejected <em>before a byte is written</em> — every error at once, with the slide's real shape inventory in the message. The agent repairs in one pass.</div>
+      <div class="verb-row">
+        <div class="v-you"><b>Find &amp; replace</b> the client's name across all 40 slides</div>
+        <div class="v-mid">→</div>
+        <div class="v-agent"><span class="op-chip">replace-text</span><p>One command covers every slide — including the template itself.</p></div>
       </div>
-      <div class="cmp-row">
-        <div class="cmp-m">Who owns it</div>
-        <div>Proprietary license — no derivative works, no redistribution.</div>
-        <div class="cmp-dh">MIT. Fork it, extend it, ship it inside your own product, run it on any model, any platform.</div>
+      <div class="verb-row">
+        <div class="v-you"><b>Drag a new image</b> over the old one and nudge it to fit</div>
+        <div class="v-mid">→</div>
+        <div class="v-agent"><span class="op-chip">swap-image</span><p>New picture, exact same frame, position, and crop.</p></div>
+      </div>
+      <div class="verb-row">
+        <div class="v-you">Change the <b>brand colors and fonts</b> for a new client</div>
+        <div class="v-mid">→</div>
+        <div class="v-agent"><span class="op-chip">set-theme · replace-color</span><p>Re-theme the entire deck in a couple of commands.</p></div>
+      </div>
+      <div class="verb-row">
+        <div class="v-you"><b>Copy that nicely-styled box</b>, paste it, change the words</div>
+        <div class="v-mid">→</div>
+        <div class="v-agent"><span class="op-chip">duplicate</span><p>Clone any shape with all its styling; just supply the new text.</p></div>
+      </div>
+      <div class="verb-row">
+        <div class="v-you"><b>Reorder slides</b>, or pull three good ones in from last quarter's deck</div>
+        <div class="v-mid">→</div>
+        <div class="v-agent"><span class="op-chip">slides · merge</span><p>Restructure within a deck, or across decks.</p></div>
+      </div>
+      <div class="verb-row">
+        <div class="v-you"><b>Design a brand-new slide</b> on a blank canvas</div>
+        <div class="v-mid">→</div>
+        <div class="v-agent"><span class="op-chip">html2patch</span><p>The agent designs the slide as a small webpage — the design language it knows best — and the tool converts it into real, editable PowerPoint shapes, placed inside your existing template.</p></div>
+      </div>
+      <div class="verb-row">
+        <div class="v-you"><b>Zoom in and squint</b> — does everything actually line up?</div>
+        <div class="v-mid">→</div>
+        <div class="v-agent"><span class="op-chip">render · lint</span><p>Slides come back as images, with a proofreading report. More below.</p></div>
       </div>
     </div>
+    <p class="verbs-foot">Tables, speaker notes, backgrounds, transitions, hidden slides, alt text — covered too. The <b>full command reference</b> lives in <a href="https://github.com/EveryInc/hands-on-deck">the repo</a>; agents pull it up themselves with <b>deck.py docs</b>.</p>
+  </div>
+</section>
 
-    <div class="proof">
-      <p>We raced Anthropic's skill — <strong>same brief, model, and budget, judged blind by three judges</strong>. Every finding shipped as a release (v2.2.0 → v2.3.0): a lint, a fix, an op — and that failure class never recurred.</p>
-      <p class="thesis">Tools learn; prompts don't.</p>
+<!-- ============ § 04 CHECKS ITS OWN WORK · dark ============ -->
+<section id="checks" class="w-dark glowed threaded" style="--txp: 120px; --tx: 72px;">
+  <div class="wrap sect-pad">
+    <div class="sect-head">
+      <p class="eyebrow"><span class="secno">§ 04</span>The safety net</p>
+      <h2 class="sect">It checks its own work —<br><em>like you would.</em></h2>
+      <p class="lede">The difference between an AI that makes slides and an AI you can <strong>trust with your deck</strong> is what happens after the edit. Here, verification is part of the job — not an afterthought.</p>
+    </div>
+
+    <div class="check-grid">
+      <figure class="lint-fig" aria-hidden="true">
+        <div class="lint-frame">
+          <div class="lshape" style="top: 10%; left: 6%; width: 60%; height: 16%;">
+            <i style="top: 26%; width: 62%; height: 26%;"></i>
+          </div>
+          <div class="lshape oops" style="top: 36%; left: 6%; width: 44%; height: 42%;">
+            <i style="top: 12%; width: 70%;"></i>
+            <i style="top: 32%; width: 62%;"></i>
+            <i style="top: 52%; width: 68%;"></i>
+            <i style="top: 72%; width: 74%;"></i>
+            <span class="flag" style="bottom: -22px; left: 0;">▲ text overflows the box by 0.4"</span>
+          </div>
+          <div class="lshape" style="top: 36%; left: 56%; width: 38%; height: 42%; border-style: solid; border-color: rgba(232,163,61,0.7); background: repeating-linear-gradient(-45deg, rgba(232,163,61,0.08) 0 6px, transparent 6px 12px);"></div>
+        </div>
+        <figcaption class="lint-report">
+          <span class="lr-bad">! slide 3: text overflows shape s18 by 0.40 in</span><br>
+          <span class="lr-fix">fix → deck.py deck.pptx fix --slide 3</span> <span style="color: var(--card-faint);">— grows the box, then re-measures</span><br>
+          <span class="lr-ok">✓ re-checked: 0 remaining issues</span>
+        </figcaption>
+      </figure>
+      <div class="check-notes">
+        <div class="check-note">
+          <h4>It <em>looks</em> at the slides</h4>
+          <p>After every change, slides render to images the agent inspects with its own eyes — the same way you'd flip through a deck before hitting send.</p>
+        </div>
+        <div class="check-note">
+          <h4>A built-in proofreader</h4>
+          <p>Text spilling out of its box. A shape hanging off the slide. Text hidden <em>behind</em> an image. A box a hair out of line with its neighbors. The tool measures all of it — <strong>in exact inches, with the exact fix</strong> — and flags only what the latest edit broke.</p>
+        </div>
+        <div class="check-note">
+          <h4>All-or-nothing edits</h4>
+          <p>Every instruction list is verified upfront. One mistake among ten instructions? <strong>Zero changes are written</strong>, and the agent gets all ten answers at once. You will never open a half-edited deck.</p>
+        </div>
+        <div class="check-note">
+          <h4>Honest repairs</h4>
+          <p>The auto-fixer re-measures after repairing. Anything it couldn't fix is <strong>reported, not papered over</strong>.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ============ § CLOSE + INSTALL · paper ============ -->
-<section id="install" class="w-paper vignette threaded" style="--txp: 120px; --tx: 72px;">
+<!-- ============ § 05 MAKE IT YOURS · paper ============ -->
+<section id="yours" class="w-paper threaded" style="--txp: 72px; --tx: 130px;">
   <div class="wrap sect-pad">
-    <div class="close-pad" style="padding-top: 0;">
-      <p class="close-eyebrow">the close</p>
-      <h2 class="close-line">Go make your agent its <em>own</em> PowerPoint.</h2>
+    <div class="sect-head">
+      <p class="eyebrow"><span class="secno">§ 05</span>Make it yours</p>
+      <h2 class="sect">Your template stays.<br><em>Your rules go on top.</em></h2>
     </div>
 
-    <div class="sect-head" style="padding-top: 0;">
-      <p class="eyebrow"><span class="secno">§ 04</span>Install</p>
-      <h2 class="sect">Three ways in. <em>Pick yours.</em></h2>
-      <p class="lede">Packaged as an Agent Skill — underneath it's just a CLI.</p>
+    <div class="keep-grid">
+      <div class="keep-col">
+        <h3>It works <em>inside</em> the decks you already have</h3>
+        <p>Because hands-on-deck edits your file instead of regenerating it, everything your designer decided — master slides, layouts, brand fonts, logo placement — <strong>survives untouched</strong>. Ask for a new slide and it's built from <em>your</em> template's layouts, not a generic default.</p>
+        <p>That's the biggest difference from "AI deck generators": they make <em>their</em> deck with your words in it. hands-on-deck makes <strong>your deck</strong>.</p>
+      </div>
+      <div class="keep-col">
+        <h3>The engine under your firm's <em>own</em> deck skill</h3>
+        <p>Teams don't just need edits — they need edits <strong>their way</strong>. hands-on-deck is built to be the engine underneath a thin skill of your own: a page of your firm's rules that the agent follows while the engine does the mechanics.</p>
+        <div class="stack" aria-hidden="true">
+          <div class="layer yours">
+            <div class="l-name">your firm's skill — a page of rules</div>
+            <div class="l-desc">"always start from the Q-report template · titles never exceed two lines · every data slide cites its source"</div>
+          </div>
+          <div class="stack-sep">▼ tells the agent to use ▼</div>
+          <div class="layer engine">
+            <div class="l-name">hands-on-deck — the engine</div>
+            <div class="l-desc">reads, edits, creates, checks — all the mechanics of working a deck</div>
+          </div>
+          <div class="stack-sep">▼ operates on ▼</div>
+          <div class="layer file">
+            <div class="l-name">your .pptx files</div>
+            <div class="l-desc">templates, past decks, this quarter's report</div>
+          </div>
+        </div>
+        <p class="keep-quote">Change your rules anytime without touching the engine — and keep receiving engine improvements automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ § 06 INSTALL · paper ============ -->
+<section id="install" class="w-paper vignette threaded" style="--txp: 130px; --tx: 72px;">
+  <div class="wrap sect-pad" style="padding-top: 0;">
+    <div class="sect-head">
+      <p class="eyebrow"><span class="secno">§ 06</span>Install</p>
+      <h2 class="sect">Use it with the AI <em>you already use</em>.</h2>
+      <p class="lede">hands-on-deck is packaged as an <strong>Agent Skill</strong> — a folder of instructions and tools any modern AI agent can pick up and use. No server, no account, no API key.</p>
     </div>
     <div class="install-lines">
       <div class="inst-line">
-        <span class="where">Claude Code</span>
-        <span class="cmd"><span class="prompt">&gt;</span> /plugin marketplace add EveryInc/hands-on-deck &nbsp;<span class="t-dim">→</span>&nbsp; <span class="prompt">&gt;</span> /plugin install hands-on-deck@hands-on-deck</span>
+        <span class="where">Claude Code / Codex<span class="sub">agent CLIs</span></span>
+        <span class="cmd"><span class="prompt">&gt;</span> /plugin marketplace add EveryInc/hands-on-deck &nbsp;<span class="t-dim">→</span>&nbsp; <span class="prompt">&gt;</span> /plugin install hands-on-deck@hands-on-deck<br><span class="t-dim">turn on marketplace auto-update, and every improvement we ship arrives on its own</span></span>
       </div>
       <div class="inst-line">
-        <span class="where">claude.ai</span>
-        <span class="cmd"><span class="prompt">$</span> zip -r hands-on-deck.zip skills/hands-on-deck &nbsp;<span class="t-dim"># upload in Settings → Capabilities</span></span>
+        <span class="where">claude.ai / ChatGPT<span class="sub">chat apps</span></span>
+        <span class="cmd"><span class="t-dim">zip the</span> skills/hands-on-deck <span class="t-dim">folder → upload it as a skill in your app's settings</span></span>
       </div>
       <div class="inst-line">
-        <span class="where">Any CLI</span>
-        <span class="cmd"><span class="prompt">$</span> git clone https://github.com/EveryInc/hands-on-deck &nbsp;<span class="t-dim">→</span>&nbsp; <span class="prompt">$</span> python …/deck.py docs</span>
+        <span class="where">Any other agent<span class="sub">it's just a CLI</span></span>
+        <span class="cmd"><span class="prompt">$</span> git clone https://github.com/EveryInc/hands-on-deck &nbsp;<span class="t-dim">→ put</span> deck.py docs <span class="t-dim">in front of your agent</span></span>
       </div>
     </div>
-    <p class="cov-line">Covers <b>read, edit, create, restructure, verify</b> — plus a raw-OOXML escape hatch.</p>
-    <p class="outscope"><b>Out of scope, honestly:</b> native charts, animations, embedded video, merged cells. hands-on-deck does the 95% that real decks are actually made of, and says so.</p>
+
+    <div class="faq">
+      <div class="faq-item">
+        <h4>Our decks are made in Keynote / Google Slides — does this work for us?</h4>
+        <p>Yes. Save or export as <strong>.pptx</strong> — both do it cleanly, and Google Slides opens .pptx directly — and hands-on-deck works on it. The file format is the standard; the apps are interchangeable.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Why is this better than my AI's built-in deck ability?</h4>
+        <p>It makes the agent think <strong>like a designer instead of a programmer</strong>. That means faster edits, a fraction of the tokens — and enough spare attention to actually sweat the details on the slide.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Do I need to be technical to use it?</h4>
+        <p>No. Install it once — two commands, or one zip upload — then just <strong>talk to your agent about your deck</strong>. Everything on this page is the agent's job, not yours.</p>
+      </div>
+      <div class="faq-item">
+        <h4>What can't it do?</h4>
+        <p>Honestly: native editable charts, shape animations, and embedded video are out of scope — the 5% where you still open PowerPoint yourself. It does the 95% real decks are made of, and says so when it can't.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Who's behind it, and what does it cost?</h4>
+        <p>Built by <a href="https://every.to/consulting">Every Consulting</a>, distilled from making hundreds of real client decks with AI. <strong>Free and open source (MIT)</strong> — fork it, extend it, ship it inside your own product.</p>
+      </div>
+      <div class="faq-item">
+        <h4>I'm an engineer. Where's the real documentation?</h4>
+        <p>The <a href="https://github.com/EveryInc/hands-on-deck">GitHub README</a> has the architecture: the patch format, atomic validation, the linter's geometry checks, html2patch, and the eval suite we test against.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLOSE · paper ============ -->
+<section class="w-paper vignette threaded" style="--txp: 72px; --tx: 64px;">
+  <div class="wrap close-pad">
+    <p class="close-eyebrow">the close</p>
+    <h2 class="close-line">Go give your agent its <em>own</em> PowerPoint.</h2>
     <p class="close-repo"><a href="https://github.com/EveryInc/hands-on-deck">github.com/EveryInc/hands-on-deck</a></p>
   </div>
 </section>
 
-<footer class="w-paper threaded" style="--txp: 72px; --tx: 64px;">
+<footer class="w-paper threaded" style="--txp: 64px; --tx: 64px;">
   <div class="wrap foot-inner">
     <div>
       <span style="color:#915C0D;">$</span> hands-on-deck — MIT license<br>
@@ -861,7 +1236,7 @@
     </div>
     <div class="foot-sig">
       built by <a class="every" href="https://every.to/consulting">Every Consulting</a><br>
-      battle-tested on real decks
+      distilled from hundreds of real decks
     </div>
   </div>
 </footer>
@@ -883,6 +1258,7 @@
     });
   });
 </script>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 </body>
 </html>

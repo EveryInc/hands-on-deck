@@ -2,7 +2,9 @@
 
 **Agent-native PowerPoint manipulation.** One CLI — `deck.py` — lets AI agents inspect, edit, create, and verify `.pptx` files with the fidelity of a human operator: atomic JSON patches in, linted decks out.
 
-**→ [everyinc.github.io/hands-on-deck](https://everyinc.github.io/hands-on-deck/)**
+PowerPoint, Keynote, and Google Slides are the deck apps for humans; hands-on-deck is the same category of application, built for agents. It targets `.pptx` because that's the format all three share — decks made in Keynote or Google Slides work too, since both import and export it cleanly.
+
+**→ [everyinc.github.io/hands-on-deck](https://everyinc.github.io/hands-on-deck/)** · **[demo video](https://x.com/nityeshaga/status/2069900616986759195)**
 
 Packaged as an [Agent Skill](https://www.anthropic.com/news/skills), so it drops into Claude Code, claude.ai, and any other agent platform that supports the skills format — and because the tool itself is just a CLI, *any* agent that can run a shell command can use it.
 
@@ -94,18 +96,30 @@ Text becomes formatted runs (inline `<b>`/`<i>`/`<span>` included); styled divs 
 
 And because a create path is only as good as what it creates, the skill ships with [designing-slides.md](skills/hands-on-deck/designing-slides.md) — an opinionated, subject-first design guide for agents: how to refuse the default AI-deck looks, plan a token system before writing HTML, size type for a projector instead of a browser, and design with the compiler's grain. The pipeline is mechanical; that file is taste.
 
+## The engine under your own deck skill
+
+Teams don't just need deck edits — they need edits *their* way. hands-on-deck is designed to be composed: keep it as the engine, and layer a thin skill of your own on top that encodes your firm's rules — which starter templates to use, how titles are written, what every data slide must cite. The client skill just says "use hands-on-deck for the actual .pptx work"; the engine does the mechanics.
+
+```
+your firm's skill      # a page of rules: templates, voice, constraints
+  └── hands-on-deck    # the engine: inspect, patch, lint, render
+        └── your .pptx files
+```
+
+This is how we deploy it for clients: the rules change per team, the engine never does — and with marketplace auto-update, every engine improvement arrives without touching the layer above.
+
 ## Install
 
-**Claude Code** (as a plugin):
+**Claude Code** (as a plugin — enable marketplace auto-update to receive every improvement automatically):
 
 ```
 /plugin marketplace add EveryInc/hands-on-deck
 /plugin install hands-on-deck@hands-on-deck
 ```
 
-**claude.ai / other apps that support Agent Skills**: zip `skills/hands-on-deck/` and upload it as a skill.
+**claude.ai / ChatGPT / other apps that support Agent Skills**: zip `skills/hands-on-deck/` and upload it as a skill.
 
-**Any agent, any platform**: clone the repo and put the output of `deck.py docs` in front of your agent. It's just a CLI.
+**Codex or any other agent, any platform**: clone the repo and put the output of `deck.py docs` in front of your agent. It's just a CLI.
 
 ```bash
 git clone https://github.com/EveryInc/hands-on-deck

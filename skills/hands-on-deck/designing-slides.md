@@ -99,6 +99,15 @@ craft on what survives:
 - Decorative depth that PPTX can't fake natively (textures, soft shadows,
   grain) can be **baked into images** and placed as full-bleed or cropped
   pictures. The compiler carries pixels faithfully; use that.
+- **Never bake the logo/footer into a full-bleed image.** The master/layout
+  already draws the EVERY logo and footer. A full-bleed picture that also carries
+  them stacks *two* logos — and it's invisible to image-only QA, because you never
+  render the master under the picture (Natalia + Mike both flagged this, 2026-07-20).
+  Leave the logo+footer zone EMPTY and let the master supply it: either (a) build
+  the image with no logo and a reserved bottom margin, then drop it on the branded
+  layout, or (b) drop it on a **blank** layout (`slide_layouts[6]`) and let the
+  picture own the whole frame — never a branded layout + a logo-bearing picture.
+  Verify with the gate below.
 
 ## Critique with your eyes, then remove one thing
 

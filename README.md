@@ -4,7 +4,7 @@
 
 PowerPoint, Keynote, and Google Slides are the deck apps for humans; hands-on-deck is the same category of application, built for agents. It targets `.pptx` because that's the format all three share — decks made in Keynote or Google Slides work too, since both import and export it cleanly.
 
-**→ [everyinc.github.io/hands-on-deck](https://everyinc.github.io/hands-on-deck/)** · **[demo video](https://x.com/nityeshaga/status/2069900616986759195)**
+**→ [nityesh.com/hands-on-deck](https://nityesh.com/hands-on-deck/)** · **[demo video](https://x.com/nityeshaga/status/2069900616986759195)**
 
 Packaged as an [Agent Skill](https://www.anthropic.com/news/skills), so it drops into Claude Code, claude.ai, and any other agent platform that supports the skills format — and because the tool itself is just a CLI, *any* agent that can run a shell command can use it.
 
@@ -148,7 +148,7 @@ No binary fixtures: tests generate their decks with python-pptx on the fly.
 
 ## Benchmarked, not just claimed
 
-We raced an agent on hands-on-deck against the same agent on Anthropic's pptx skill — same briefs, same model, three from-scratch decks plus a heavy re-theme-and-insert edit, every round blind-judged by three independent judges. Every finding the judges produced became machinery in the tool (the text-under-picture lint, serif re-wrap margins, the `<br>` table fix, the `replace-color` op) — and that failure class never recurred, while the other toolchain's defects repeated every round. Tools learn; prompts don't. The full story is on [the landing page](https://everyinc.github.io/hands-on-deck/#benchmark).
+We raced an agent on hands-on-deck against the same agent on Anthropic's pptx skill — same briefs, same model, three from-scratch decks plus a heavy re-theme-and-insert edit, every round blind-judged by three independent judges. Every finding the judges produced became machinery in the tool (the text-under-picture lint, serif re-wrap margins, the `<br>` table fix, the `replace-color` op) — and that failure class never recurred, while the other toolchain's defects repeated every round. Tools learn; prompts don't. The full story is on [the landing page](https://nityesh.com/hands-on-deck/#benchmark).
 
 The benchmark is a committed, repeatable eval suite, not a one-off: [`evals/`](evals/) holds the builder briefs, judge prompts, blinding script, the agent-executable runbook, and the results log of every round. Change the tool, rerun the eval, compare.
 

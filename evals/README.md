@@ -12,14 +12,17 @@ evals/
 ├── tasks/         # builder briefs (what the competing agents are asked to do)
 │   ├── create-dynamic-workflows.md    # from-scratch: 15-slide deck, web research, real assets
 │   ├── edit-retheme-and-insert.md     # edit: full palette re-theme + insert one new slide
-│   └── edit-two-world-reskin.md       # edit: partial per-slide re-skin + targeted edits + notes (replayed real request)
+│   ├── edit-two-world-reskin.md       # edit: partial per-slide re-skin + targeted edits + notes (replayed real request)
+│   └── edit-claude-tag-slack-fidelity.md # edit: make a Slack-UI mock actually read as real Slack (no checklist)
 ├── judges/        # judge briefs (how results are scored)
 │   ├── create-judge.md   # 7-dimension blind scoring for from-scratch decks
 │   ├── edit-judge.md     # 6-dimension blind scoring for edit quality
 │   ├── edit-auditor.md   # forensic fidelity audit (machine-assisted, non-aesthetic)
-│   └── edit-auditor-two-world.md  # task-specific audit: world map, thread continuity, notes validity
+│   ├── edit-auditor-two-world.md  # task-specific audit: world map, thread continuity, notes validity
+│   └── edit-auditor-claude-tag-slack-fidelity.md # answer-key audit: Slack-fidelity tell manifest (dropped text, chrome)
 ├── assets/        # committed task inputs (only when a task needs a fixed real artifact)
-│   └── two-world-reskin-input.pptx    # the real 18-slide ink-v1 deck the request started from
+│   ├── two-world-reskin-input.pptx    # the real 18-slide ink-v1 deck the request started from
+│   └── claude-tag-slack-fidelity/     # slack-wireframe-input.pptx — the 12-slide Slack-UI mock with the tells present
 ├── scripts/
 │   └── blind.py   # anonymizes two arms' renders into deck-A/deck-B for the judges
 └── results/       # one markdown verdict log per run (committed; heavy artifacts stay local)

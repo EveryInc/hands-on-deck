@@ -132,6 +132,25 @@ toolchains; both arms received identical content):
 > The deck's subject matter is irrelevant and identical across both teams. Judge
 > ONLY the quality of the edits — never the deck's claims or copy.
 
+**For `tasks/edit-claude-tag-comment-revisions.md`** the scoring is answer-key-based, not
+taste-based, so it does NOT use the design judges. Run only
+`judges/edit-auditor-claude-tag-comment-revisions.md` (one copy per arm, or one copy covering
+both — it holds the five-comment answer key and scores each arm independently). This auditor
+needs, per arm, the edited renders (`deck-A/*.jpg`, **13**), the *original input* renders
+(`orig-A/*.jpg`, 12), the arm's `final.pptx` (copied in as `file-A.pptx`), and the arm's
+`changes.json` (copied in as `changes-A.json`) — all assignment-matched, arm names hidden.
+Phase 0 note: this is a **same-deck** task — copy the committed input
+`evals/assets/claude-tag-comment-revisions/comment-revisions-input.pptx` to each arm's
+`{{WORKDIR}}/deck.pptx` and render the originals now (the auditor needs the 12 pre-edit images).
+The final deck is **13 slides** (one comment adds a slide). Because there is a fixed answer key,
+blinding/order-rotation matters less here, but still hide arm names so the write-up stays neutral.
+This task also runs fine **single-arm** as a pure capability probe (one arm, score the C1–C5
+scorecard). The headline discriminator is the **1-based → 0-based indexing trap** (the reviewer
+named slides 4/6/8/11; the arm must act on indices 3/5/7/10, and insert C4's new slide *after
+index 7*) — weight correct targeting heaviest, then execution fidelity, the new slide's quality,
+and verification rigor; do NOT weight discovery breadth (there is a checklist). C2/C3 are the two
+revisions the 3.1.0 alignment linter can *partially* assist on; C1/C4/C5 are render-and-look only.
+
 ## Phase 5 — unblind and tally
 
 Only after every judge's final verdict is in:

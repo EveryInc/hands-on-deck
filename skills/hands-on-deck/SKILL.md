@@ -133,6 +133,7 @@ python scripts/deck.py deck.pptx merge --list-layouts              # choose a la
 - `render -o img/ --slide 3,7` — JPGs named `slide-<index>.jpg`; `--crop l,t,w,h --scale 2` zooms a region (inches, same coordinates as inspect). Hidden slides render only when explicitly listed.
 - `diff other.pptx` — text/geometry/media/notes changelog without rendering.
 - Thumbnail grids for whole-deck review: `python scripts/thumbnail.py deck.pptx --cols 4` (optional second arg = output filename prefix).
+- **Doubled-logo gate** (run on every built deck): `python scripts/check_logos.py deck.pptx` — flags any slide where a full-bleed / footer-covering picture is stacked on a logo/footer the master or layout already draws. Structural and deterministic (no rendering), so it's safe in CI and as a post-build workflow step. Exit 0 = clean, 1 = risk (prints slide + fix), 2 = error. `--json` for machine output; `--band`/`--coverage` tune the zone. This catches the defect image-only QA can't see — the logo baked into a PNG *and* drawn by the master. See "Never bake the logo/footer into a full-bleed image" in `designing-slides.md`.
 
 ### Reviewing more than a slide or two — fan out, don't accumulate
 

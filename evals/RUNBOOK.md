@@ -132,6 +132,20 @@ toolchains; both arms received identical content):
 > The deck's subject matter is irrelevant and identical across both teams. Judge
 > ONLY the quality of the edits — never the deck's claims or copy.
 
+**For `tasks/edit-claude-tag-review-loop.md`** the scoring is answer-key-based, not
+taste-based, so it does NOT use the design judges. Run only
+`judges/edit-auditor-claude-tag.md` (one copy per arm, or one copy covering both — it
+holds the manifest and scores each arm independently). This auditor needs, per arm,
+the edited renders (`deck-A/*.jpg`), the *original buggy* renders (`orig-A/*.jpg`),
+the arm's `final.pptx` (copied in as `file-A.pptx`), and the arm's `defects.json`
+(copied in as `defects-A.json`) — all assignment-matched, arm names hidden. Phase 0
+note: this is a **same-deck** task — copy the committed input
+`evals/assets/claude-tag-review-loop/claude-tag-v1-buggy.pptx` to each arm's
+`{{WORKDIR}}/deck.pptx` and render the originals now (the auditor needs pre-fix
+images). Because there is a fixed answer key, blinding/order-rotation matters less
+here, but still hide arm names so the write-up stays neutral. This task also runs
+fine **single-arm** as a pure capability probe (one arm, score defects-fixed / 5).
+
 ## Phase 5 — unblind and tally
 
 Only after every judge's final verdict is in:

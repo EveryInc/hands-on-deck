@@ -53,6 +53,7 @@ Patch format (apply): {"ops": [ ... ]} — ops run in order, all-or-nothing.
         kinds: textbox, rect, rounded_rect, ellipse, line (from/to), any MSO_SHAPE
         name; takes every set-style key (fill, line_color, font_size, rotation…)
     {"op":"add-picture", "slide":3, "image":"/abs/img.png", "at":[1,2], "width":4}
+    {"op":"add-movie",   "slide":3, "movie":"/abs/clip.mp4", "at":[1,2], "size":[4,2.25], "poster":"/abs/frame.png"}
     {"op":"add-table",   "slide":3, "at":[1,2], "size":[8,3], "rows":[["A","B"],["1","2"]]}
     {"op":"add-slide",   "layout":"Blank", "at":5}   # layout name or index; omit = blank-est
     {"op":"reorder",     "slide":3, "shape":"s12", "z":"front"}  # back|forward|backward
@@ -728,7 +729,7 @@ VALID_OPS = (
     "set-text swap-image replace-text replace-color set-notes set-props "
     "set-slide set-theme move resize set-style "
     "delete duplicate copy-shape "
-    "add-shape add-picture add-table add-slide reorder "
+    "add-shape add-picture add-movie add-table add-slide reorder "
     "add-row delete-row add-col delete-col"
 ).split()
 
@@ -1761,6 +1762,30 @@ def op_add_picture(ctx, op):
     )
 
 
+def op_add_movie(ctx, op):
+    """Embed a local video into the slide (python-pptx add_movie). Movies need
+    explicit "size"; "poster" (a still image) is optional. NOTE: a video
+    embedded in a .pptx does NOT survive import into Google Slides as a native
+    Slides video — for Slides, insert via the Slides API (createVideo)."""
+    slide_idx = op["slide"]
+    slide = ctx.prs.slides[slide_idx]
+    l, t = op["at"]
+    w, h = op["size"]
+    poster = op.get("poster")
+    sh = slide.shapes.add_movie(
+        str(op["movie"]), Inches(l), Inches(t), Inches(w), Inches(h),
+        poster_frame_image=str(poster) if poster else None,
+        mime_type=op.get("mime_type", "video/mp4"),
+    )
+    if "alt_text" in op:
+        _set_alt_text(sh, op["alt_text"])
+    ctx.reindex_slide(slide_idx)
+    ctx.log.append(
+        "add-movie slide %d %s -> s%d (%.2fx%.2fin)"
+        % (slide_idx, Path(op["movie"]).name, sh.shape_id, inches(sh.width), inches(sh.height))
+    )
+
+
 def op_add_table(ctx, op):
     slide_idx = op["slide"]
     rows = op["rows"]
@@ -2013,6 +2038,7 @@ OP_HANDLERS = {
     "copy-shape": op_copy_shape,
     "add-shape": op_add_shape,
     "add-picture": op_add_picture,
+    "add-movie": op_add_movie,
     "add-table": op_add_table,
     "add-slide": op_add_slide,
     "reorder": op_reorder,
@@ -2079,6 +2105,17 @@ def validate_ops(ctx, ops):
             img = op.get("image")
             if not img or not Path(img).exists():
                 errors.append("%s: image not found: %s" % (tag, img))
+        if kind == "add-movie":
+            if "at" not in op:
+                errors.append("%s: needs 'at':[l,t] (inches)" % tag)
+            if "size" not in op:
+                errors.append("%s: needs 'size':[w,h] (inches) — movies need explicit dimensions" % tag)
+            mv = op.get("movie")
+            if not mv or not Path(mv).exists():
+                errors.append("%s: movie not found: %s" % (tag, mv))
+            poster = op.get("poster")
+            if poster and not Path(poster).exists():
+                errors.append("%s: poster not found: %s" % (tag, poster))
         if kind == "add-shape":
             try:
                 k = resolve_shape_kind(op.get("kind", "textbox"))

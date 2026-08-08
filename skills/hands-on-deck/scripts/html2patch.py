@@ -315,6 +315,14 @@ EXTRACT_JS = r"""
       return;
     }
 
+    if (tag === 'VIDEO') {
+      const r = el.getBoundingClientRect();
+      out.items.push({ type: 'video', src: el.currentSrc || el.src || '',
+                       poster: el.poster || null,
+                       box: { x: r.left, y: r.top, w: r.width, h: r.height } });
+      return;
+    }
+
     if (tag === 'TABLE') {
       const r = el.getBoundingClientRect();
       const rows = [];
@@ -490,6 +498,43 @@ def resolve_image(src, html_dir, tmpdir, warnings):
         warnings.append("image not found: %s" % p)
         return None
     return p
+
+
+VIDEO_MIME = {"mp4": "video/mp4", "webm": "video/webm", "ogg": "video/ogg", "mov": "video/quicktime"}
+
+
+def resolve_video(src, html_dir, tmpdir, warnings):
+    """(path, mime) for a LOCAL video; (None, None) for remote/Drive links —
+    .pptx can't carry a Google-Slides-native video, so the caller places a
+    poster and warns."""
+    if src.startswith("data:"):
+        m = re.match(r"data:(video/[\w.+-]+);base64,(.*)", src, re.S)
+        if not m:
+            return None, None
+        ext = {"video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov"}.get(m.group(1), "mp4")
+        p = Path(tempfile.mkstemp(suffix="." + ext, dir=tmpdir)[1])
+        p.write_bytes(base64.b64decode(m.group(2)))
+        return p, m.group(1)
+    if src.startswith("file://"):
+        p = Path(src[7:].split("?")[0])
+    elif re.match(r"^https?://", src):
+        return None, None  # remote / Google Drive — caller places poster + warns
+    else:
+        p = (html_dir / src.split("?")[0]).resolve()
+    if not p.exists():
+        warnings.append("video not found: %s" % p)
+        return None, None
+    return p, VIDEO_MIME.get(p.suffix.lower().lstrip("."), "video/mp4")
+
+
+def movie_op(path, mime, poster_path, box, slide_ref):
+    """add-movie op embedding a local video at the element's rect."""
+    op = {"op": "add-movie", "slide": slide_ref, "movie": str(path), "mime_type": mime,
+          "at": [px2in(box["x"]), px2in(box["y"])],
+          "size": [px2in(box["w"]), px2in(box["h"])]}
+    if poster_path:
+        op["poster"] = str(poster_path)
+    return op
 
 
 def run_to_spec(run):
@@ -735,6 +780,20 @@ def compile_page(extract, slide_ref, html_path, tmpdir, prefix, warnings):
             if not p:
                 continue
             ops.append(picture_op(p, item["box"], item.get("fit", "fill"), slide_ref))
+        elif item["type"] == "video":
+            poster_path = (resolve_image(item["poster"], html_path.parent, tmpdir, warnings)
+                           if item.get("poster") else None)
+            vp, mime = resolve_video(item["src"], html_path.parent, tmpdir, warnings)
+            if vp:
+                ops.append(movie_op(vp, mime, poster_path, item["box"], slide_ref))
+            else:
+                warnings.append(
+                    "remote/Drive video %s not embedded — .pptx can't carry a "
+                    "Google-Slides-native video. Poster placed (if any); insert the "
+                    "real video via PowerPoint or the Slides API createVideo."
+                    % (item["src"][:60] or "(no src)"))
+                if poster_path:
+                    ops.append(picture_op(poster_path, item["box"], "cover", slide_ref))
         elif item["type"] == "text":
             ops += text_block_ops(item, slide_ref, next_name("text"), warnings)
         elif item["type"] == "box":

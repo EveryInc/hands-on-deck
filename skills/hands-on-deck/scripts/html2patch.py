@@ -480,7 +480,9 @@ def resolve_image(src, html_dir, tmpdir, warnings):
         p.write_bytes(base64.b64decode(m.group(2)))
         return p
     if src.startswith("file://"):
-        p = Path(src[7:].split("?")[0])
+        from urllib.parse import urlparse
+        from urllib.request import url2pathname
+        p = Path(url2pathname(urlparse(src).path))
     elif re.match(r"^https?://", src):
         warnings.append("remote image %s skipped — download it locally first" % src[:60])
         return None
